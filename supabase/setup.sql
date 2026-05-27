@@ -31,12 +31,20 @@ create table if not exists public.resultado (
 alter table public.participantes enable row level security;
 alter table public.resultado     enable row level security;
 
--- Cada usuário vê apenas seus próprios dados
+-- Participante vê seus dados pelo email (funciona com magic link)
 create policy "participante ve seus dados"
   on public.participantes for select
-  using (auth.uid() = user_id);
+  using (auth.email() = email);
 
--- Resultado visível para todos (para exibir na página pública)
+-- Resultado visível para todos
 create policy "resultado visivel para todos"
   on public.resultado for select
   using (true);
+
+-- ============================================================
+-- Se já executou o SQL antes, rode só isto para corrigir a policy:
+-- ============================================================
+-- drop policy if exists "participante ve seus dados" on public.participantes;
+-- create policy "participante ve seus dados"
+--   on public.participantes for select
+--   using (auth.email() = email);

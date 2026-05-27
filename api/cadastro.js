@@ -1,19 +1,17 @@
 /* ============================================================
    api/cadastro.js — Daisuki Confeitaria
-   POST /api/cadastro
-   Valida, salva no Supabase, gera magic link para login
+   POST /api/cadastro — salva participante no Supabase
+   Auth é feita client-side via magic link (signInWithOtp)
    ============================================================ */
 
 const { createClient } = require('@supabase/supabase-js');
 
-const SUPABASE_URL     = process.env.SUPABASE_URL;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const SITE_URL         = process.env.SITE_URL || 'https://daisuki-zeta.vercel.app';
-
 function getSupabase() {
-  return createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -68,38 +66,37 @@ module.exports = async function handler(req, res) {
   const supabase   = getSupabase();
 
   // ── Checar email duplicado ─────────────────────────────
-  const { data: existing } = await supabase
+  const { data: existing, error: checkError } = await supabase
     .from('participantes')
     .select('id')
     .eq('email', cleanEmail)
     .maybeSingle();
 
+  if (checkError) {
+    console.error('Check error:', checkError);
+    return res.status(500).json({ error: 'db_error', message: checkError.message });
+  }
+
   if (existing) return res.status(409).json({ error: 'duplicate_email' });
 
   // ── Buscar números já usados ───────────────────────────
-  const { data: allRows } = await supabase.from('participantes').select('numeros');
-  const usedNums = (allRows || []).flatMap((r) => r.numeros || []);
+  const { data: allRows, error: fetchError } = await supabase
+    .from('participantes')
+    .select('numeros');
 
-  const qtd     = Math.max(1, Math.min(20, parseInt(quantidade) || 1));
-  const numeros = generateNumbers(qtd, usedNums);
-  if (!numeros) return res.status(500).json({ error: 'server_error', message: 'Não foi possível gerar números únicos.' });
-
-  // ── Criar usuário no Supabase Auth ─────────────────────
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-    email:         cleanEmail,
-    email_confirm: true,
-  });
-
-  if (authError && authError.message !== 'A user with this email address has already been registered') {
-    console.error('Auth error:', authError);
-    return res.status(500).json({ error: 'auth_error' });
+  if (fetchError) {
+    console.error('Fetch error:', fetchError);
+    return res.status(500).json({ error: 'db_error', message: fetchError.message });
   }
 
-  const userId = authData?.user?.id || null;
+  const usedNums = (allRows || []).flatMap((r) => r.numeros || []);
+  const qtd      = Math.max(1, Math.min(20, parseInt(quantidade) || 1));
+  const numeros  = generateNumbers(qtd, usedNums);
+
+  if (!numeros) return res.status(500).json({ error: 'server_error', message: 'Não foi possível gerar números únicos.' });
 
   // ── Inserir participante ───────────────────────────────
   const { error: insertError } = await supabase.from('participantes').insert({
-    user_id:    userId,
     nome:       nome.trim(),
     social:     social.trim(),
     email:      cleanEmail,
@@ -111,17 +108,8 @@ module.exports = async function handler(req, res) {
 
   if (insertError) {
     console.error('Insert error:', insertError);
-    return res.status(500).json({ error: 'db_error' });
+    return res.status(500).json({ error: 'db_error', message: insertError.message });
   }
 
-  // ── Gerar magic link para login automático ─────────────
-  const { data: linkData } = await supabase.auth.admin.generateLink({
-    type:    'magiclink',
-    email:   cleanEmail,
-    options: { redirectTo: `${SITE_URL}/countdown.html` },
-  });
-
-  const magicLink = linkData?.properties?.action_link || null;
-
-  return res.status(200).json({ success: true, numeros, magicLink });
+  return res.status(200).json({ success: true, numeros });
 };

@@ -30,17 +30,16 @@
     numsLabel.textContent = numeros.join(' · ');
   }
 
-  /* Buscar números do participante logado */
-  async function fetchNumerosDoUsuario(userId) {
+  /* Buscar números do participante logado (por email) */
+  async function fetchNumerosDoUsuario(email) {
     const { data, error } = await supa
       .from('participantes')
       .select('numeros')
-      .eq('user_id', userId)
+      .eq('email', email.toLowerCase())
       .maybeSingle();
 
     if (!error && data?.numeros?.length) {
       showNums(data.numeros);
-      /* Limpa hash da URL após capturar a sessão */
       if (window.location.hash) history.replaceState(null, '', window.location.pathname);
     }
   }
@@ -51,7 +50,7 @@
       if (loginOverlay) loginOverlay.hidden = true;
       /* Só busca no banco se ainda não mostrou números pela URL */
       if (!numsLabel?.textContent) {
-        fetchNumerosDoUsuario(session.user.id);
+        fetchNumerosDoUsuario(session.user.email);
       }
     } else if (!urlNums) {
       /* Sem sessão e sem URL params → pede login */

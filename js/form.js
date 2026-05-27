@@ -222,12 +222,7 @@
 
   function handleResult({ ok, status, body }) {
     if (ok && body.success) {
-      if (body.magicLink) {
-        // Magic link do Supabase — faz login automático e redireciona para countdown
-        window.location.href = body.magicLink;
-      } else {
-        goToCountdown(body.numeros || [body.numero]);
-      }
+      goToCountdown(body.numeros || [body.numero]);
       return;
     }
 
