@@ -77,13 +77,6 @@
 
 .nav-links a:hover { opacity: 1; color: var(--chocolate); }
 
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-  flex-shrink: 0;
-}
-
 .nav-link-nums {
   font-family: var(--font-body);
   font-size: 0.6rem;
