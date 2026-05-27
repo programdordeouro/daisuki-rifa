@@ -24,6 +24,9 @@
   const urlParams = new URLSearchParams(window.location.search);
   const urlNums   = urlParams.get('numeros') || urlParams.get('numero') || '';
 
+  /* Se veio com URL params, esconde o overlay imediatamente (antes de qualquer auth check) */
+  if (urlNums && loginOverlay) loginOverlay.hidden = true;
+
   /* Mostrar números no label do topo e na seção destacada */
   function showNums(numeros) {
     if (!numeros?.length) return;
@@ -96,7 +99,7 @@
       });
 
       if (error) {
-        if (loginMsg) loginMsg.textContent = 'Erro ao enviar. Tente novamente.';
+        if (loginMsg) loginMsg.textContent = `Erro: ${error.message}`;
       } else {
         if (loginMsg) loginMsg.textContent = '✓ Link enviado! Verifique seu e-mail.';
         if (loginEmail) loginEmail.value = '';
