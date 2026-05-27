@@ -60,8 +60,8 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')    return res.status(405).json({ error: 'method_not_allowed' });
 
-  const SUPA_URL = process.env.SUPABASE_URL;
-  const SUPA_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const SUPA_URL = (process.env.SUPABASE_URL  || '').replace(/^﻿/, '').trim();
+  const SUPA_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').replace(/^﻿/, '').trim();
 
   if (!SUPA_URL || !SUPA_KEY) {
     console.error('Env ausentes — url:', !!SUPA_URL, 'key:', !!SUPA_KEY);
