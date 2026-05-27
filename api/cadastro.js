@@ -1,46 +1,8 @@
 /* ============================================================
    api/cadastro.js — Daisuki Confeitaria
-   POST /api/cadastro
-   Usa Supabase REST API diretamente (sem biblioteca)
+   POST /api/cadastro — Supabase REST API via fetch nativo
    ============================================================ */
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-const HEADERS = {
-  'apikey':        SERVICE_KEY,
-  'Authorization': `Bearer ${SERVICE_KEY}`,
-  'Content-Type':  'application/json',
-};
-
-/* Consulta na tabela via REST */
-async function dbSelect(table, params = '', single = false) {
-  const url = `${SUPABASE_URL}/rest/v1/${table}?${params}`;
-  const res  = await fetch(url, {
-    headers: { ...HEADERS, ...(single ? { 'Accept': 'application/vnd.pgrst.object+json' } : {}) },
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`dbSelect ${table}: ${err}`);
-  }
-  return res.json();
-}
-
-/* Insere uma linha na tabela via REST */
-async function dbInsert(table, row) {
-  const url = `${SUPABASE_URL}/rest/v1/${table}`;
-  const res  = await fetch(url, {
-    method:  'POST',
-    headers: { ...HEADERS, 'Prefer': 'return=minimal' },
-    body:    JSON.stringify(row),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`dbInsert ${table}: ${err}`);
-  }
-}
-
-/* ── Helpers ──────────────────────────────────────────────── */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validate({ nome, social, email, telefone, quantidade }) {
@@ -65,7 +27,6 @@ function generateNumbers(n, usedNums) {
   return result.length === n ? result : null;
 }
 
-/* ── Handler ──────────────────────────────────────────────── */
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -73,6 +34,21 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')    return res.status(405).json({ error: 'method_not_allowed' });
+
+  // ── Checar variáveis de ambiente ───────────────────────
+  const SUPA_URL = process.env.SUPABASE_URL;
+  const SUPA_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!SUPA_URL || !SUPA_KEY) {
+    console.error('Env vars ausentes:', { url: !!SUPA_URL, key: !!SUPA_KEY });
+    return res.status(500).json({ error: 'config_error', message: 'Variáveis de ambiente não configuradas.' });
+  }
+
+  const hdrs = {
+    'apikey':        SUPA_KEY,
+    'Authorization': 'Bearer ' + SUPA_KEY,
+    'Content-Type':  'application/json',
+  };
 
   let body;
   try { body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body; }
@@ -84,35 +60,59 @@ module.exports = async function handler(req, res) {
   if (errors.length) return res.status(400).json({ error: 'validation_error', details: errors });
 
   const cleanEmail = email.trim().toLowerCase();
+  const base       = SUPA_URL + '/rest/v1';
 
   try {
     // ── Checar email duplicado ───────────────────────────
-    const existing = await dbSelect('participantes', `email=eq.${encodeURIComponent(cleanEmail)}&select=id`);
+    const checkRes = await fetch(`${base}/participantes?email=eq.${encodeURIComponent(cleanEmail)}&select=id`, {
+      headers: hdrs,
+    });
+    if (!checkRes.ok) {
+      const t = await checkRes.text();
+      console.error('Check failed:', checkRes.status, t);
+      return res.status(500).json({ error: 'db_error', message: t });
+    }
+    const existing = await checkRes.json();
     if (existing.length > 0) return res.status(409).json({ error: 'duplicate_email' });
 
     // ── Buscar números já usados ─────────────────────────
-    const allRows  = await dbSelect('participantes', 'select=numeros');
+    const numsRes = await fetch(`${base}/participantes?select=numeros`, { headers: hdrs });
+    if (!numsRes.ok) {
+      const t = await numsRes.text();
+      console.error('Nums fetch failed:', t);
+      return res.status(500).json({ error: 'db_error', message: t });
+    }
+    const allRows  = await numsRes.json();
     const usedNums = allRows.flatMap((r) => r.numeros || []);
 
     const qtd     = Math.max(1, Math.min(20, parseInt(quantidade) || 1));
     const numeros = generateNumbers(qtd, usedNums);
-    if (!numeros) return res.status(500).json({ error: 'server_error' });
+    if (!numeros) return res.status(500).json({ error: 'server_error', message: 'Números esgotados.' });
 
     // ── Inserir participante ─────────────────────────────
-    await dbInsert('participantes', {
-      nome:       nome.trim(),
-      social:     social.trim(),
-      email:      cleanEmail,
-      telefone:   telefone.trim(),
-      modalidade,
-      quantidade: qtd,
-      numeros,
+    const insertRes = await fetch(`${base}/participantes`, {
+      method:  'POST',
+      headers: { ...hdrs, 'Prefer': 'return=minimal' },
+      body:    JSON.stringify({
+        nome:       nome.trim(),
+        social:     social.trim(),
+        email:      cleanEmail,
+        telefone:   telefone.trim(),
+        modalidade,
+        quantidade: qtd,
+        numeros,
+      }),
     });
+    if (!insertRes.ok) {
+      const t = await insertRes.text();
+      console.error('Insert failed:', insertRes.status, t);
+      return res.status(500).json({ error: 'db_error', message: t });
+    }
 
     return res.status(200).json({ success: true, numeros });
 
   } catch (err) {
-    console.error('API error:', err.message);
+    console.error('Fetch error:', err.message, err.stack);
     return res.status(500).json({ error: 'server_error', message: err.message });
   }
 };
