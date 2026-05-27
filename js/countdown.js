@@ -24,7 +24,7 @@
   const urlParams = new URLSearchParams(window.location.search);
   const urlNums   = urlParams.get('numeros') || urlParams.get('numero') || '';
 
-  /* Se veio com URL params, esconde o overlay imediatamente (antes de qualquer auth check) */
+  /* Se veio com URL params, esconde o overlay imediatamente */
   if (urlNums && loginOverlay) loginOverlay.hidden = true;
 
   /* Mostrar números no label do topo e na seção destacada */
@@ -57,25 +57,27 @@
     }
   }
 
-  /* Ouvir mudanças de autenticação (inclui chegada do magic link) */
+  let ticketsAlreadyShown = false;
+
+  /* INITIAL_SESSION dispara após o Supabase processar o hash do magic link */
   supa.auth.onAuthStateChange((event, session) => {
-    if (session?.user) {
-      if (loginOverlay) loginOverlay.hidden = true;
-      /* Só busca no banco se ainda não mostrou números pela URL */
-      if (!numsLabel?.textContent) {
-        fetchNumerosDoUsuario(session.user.email);
+    if (event === 'INITIAL_SESSION') {
+      if (session?.user) {
+        if (loginOverlay) loginOverlay.hidden = true;
+        if (!urlNums && !ticketsAlreadyShown) fetchNumerosDoUsuario(session.user.email);
+      } else if (!urlNums) {
+        /* Sem sessão e sem URL params → pede login */
+        if (loginOverlay) loginOverlay.hidden = false;
       }
-    } else if (!urlNums) {
-      /* Sem sessão e sem URL params → pede login */
-      if (loginOverlay) loginOverlay.hidden = false;
+    } else if (event === 'SIGNED_IN' && session?.user) {
+      if (loginOverlay) loginOverlay.hidden = true;
+      if (!ticketsAlreadyShown) fetchNumerosDoUsuario(session.user.email);
     }
   });
 
-  /* Verificar sessão existente ao carregar */
-  supa.auth.getSession();
-
-  /* Se veio com URL params, mostra imediatamente (modo local ou fallback) */
+  /* Se veio com URL params, mostra imediatamente */
   if (urlNums) {
+    ticketsAlreadyShown = true;
     const nums = decodeURIComponent(urlNums).split(',').map((s) => s.trim()).filter(Boolean);
     showNums(nums);
   }
