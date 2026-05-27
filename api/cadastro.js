@@ -1,7 +1,32 @@
 /* ============================================================
    api/cadastro.js — Daisuki Confeitaria
-   POST /api/cadastro — Supabase REST API via fetch nativo
+   POST /api/cadastro — usa https nativo do Node.js
    ============================================================ */
+
+const https = require('https');
+
+/* Faz uma requisição HTTPS e retorna { status, body } */
+function request(urlStr, options = {}, bodyData = null) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(urlStr);
+    const opts = {
+      hostname: url.hostname,
+      path:     url.pathname + url.search,
+      method:   options.method || 'GET',
+      headers:  options.headers || {},
+    };
+
+    const req = https.request(opts, (res) => {
+      let raw = '';
+      res.on('data', (chunk) => { raw += chunk; });
+      res.on('end', () => resolve({ status: res.statusCode, body: raw }));
+    });
+
+    req.on('error', reject);
+    if (bodyData) req.write(bodyData);
+    req.end();
+  });
+}
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -35,13 +60,12 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')    return res.status(405).json({ error: 'method_not_allowed' });
 
-  // ── Checar variáveis de ambiente ───────────────────────
   const SUPA_URL = process.env.SUPABASE_URL;
   const SUPA_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!SUPA_URL || !SUPA_KEY) {
-    console.error('Env vars ausentes:', { url: !!SUPA_URL, key: !!SUPA_KEY });
-    return res.status(500).json({ error: 'config_error', message: 'Variáveis de ambiente não configuradas.' });
+    console.error('Env ausentes — url:', !!SUPA_URL, 'key:', !!SUPA_KEY);
+    return res.status(500).json({ error: 'config_error' });
   }
 
   const hdrs = {
@@ -64,55 +88,55 @@ module.exports = async function handler(req, res) {
 
   try {
     // ── Checar email duplicado ───────────────────────────
-    const checkRes = await fetch(`${base}/participantes?email=eq.${encodeURIComponent(cleanEmail)}&select=id`, {
-      headers: hdrs,
-    });
-    if (!checkRes.ok) {
-      const t = await checkRes.text();
-      console.error('Check failed:', checkRes.status, t);
-      return res.status(500).json({ error: 'db_error', message: t });
+    const checkR = await request(
+      `${base}/participantes?email=eq.${encodeURIComponent(cleanEmail)}&select=id`,
+      { headers: hdrs }
+    );
+    if (checkR.status !== 200) {
+      console.error('Check error:', checkR.status, checkR.body);
+      return res.status(500).json({ error: 'db_error', detail: checkR.body });
     }
-    const existing = await checkRes.json();
+    const existing = JSON.parse(checkR.body);
     if (existing.length > 0) return res.status(409).json({ error: 'duplicate_email' });
 
     // ── Buscar números já usados ─────────────────────────
-    const numsRes = await fetch(`${base}/participantes?select=numeros`, { headers: hdrs });
-    if (!numsRes.ok) {
-      const t = await numsRes.text();
-      console.error('Nums fetch failed:', t);
-      return res.status(500).json({ error: 'db_error', message: t });
+    const numsR = await request(`${base}/participantes?select=numeros`, { headers: hdrs });
+    if (numsR.status !== 200) {
+      console.error('Nums error:', numsR.status, numsR.body);
+      return res.status(500).json({ error: 'db_error', detail: numsR.body });
     }
-    const allRows  = await numsRes.json();
-    const usedNums = allRows.flatMap((r) => r.numeros || []);
+    const usedNums = JSON.parse(numsR.body).flatMap((r) => r.numeros || []);
 
     const qtd     = Math.max(1, Math.min(20, parseInt(quantidade) || 1));
     const numeros = generateNumbers(qtd, usedNums);
-    if (!numeros) return res.status(500).json({ error: 'server_error', message: 'Números esgotados.' });
+    if (!numeros) return res.status(500).json({ error: 'server_error' });
 
     // ── Inserir participante ─────────────────────────────
-    const insertRes = await fetch(`${base}/participantes`, {
-      method:  'POST',
-      headers: { ...hdrs, 'Prefer': 'return=minimal' },
-      body:    JSON.stringify({
-        nome:       nome.trim(),
-        social:     social.trim(),
-        email:      cleanEmail,
-        telefone:   telefone.trim(),
-        modalidade,
-        quantidade: qtd,
-        numeros,
-      }),
+    const payload = JSON.stringify({
+      nome:       nome.trim(),
+      social:     social.trim(),
+      email:      cleanEmail,
+      telefone:   telefone.trim(),
+      modalidade,
+      quantidade: qtd,
+      numeros,
     });
-    if (!insertRes.ok) {
-      const t = await insertRes.text();
-      console.error('Insert failed:', insertRes.status, t);
-      return res.status(500).json({ error: 'db_error', message: t });
+
+    const insertR = await request(
+      `${base}/participantes`,
+      { method: 'POST', headers: { ...hdrs, 'Prefer': 'return=minimal' } },
+      payload
+    );
+
+    if (insertR.status !== 200 && insertR.status !== 201) {
+      console.error('Insert error:', insertR.status, insertR.body);
+      return res.status(500).json({ error: 'db_error', detail: insertR.body });
     }
 
     return res.status(200).json({ success: true, numeros });
 
   } catch (err) {
-    console.error('Fetch error:', err.message, err.stack);
+    console.error('HTTPS error:', err.message);
     return res.status(500).json({ error: 'server_error', message: err.message });
   }
 };
