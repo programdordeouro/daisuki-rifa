@@ -77,6 +77,27 @@
 
 .nav-links a:hover { opacity: 1; color: var(--chocolate); }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-shrink: 0;
+}
+
+.nav-link-nums {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--chocolate-mid);
+  text-decoration: none;
+  opacity: 0.55;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+.nav-link-nums:hover { opacity: 1; color: var(--rose); }
+
 .nav-cta { flex-shrink: 0; }
 
 .nav-hamburger {
