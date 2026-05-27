@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Daisuki Confeitaria — Rifa Especial 2026. Participe e concorra a prêmios especiais!">
+  <meta property="og:title" content="Daisuki Confeitaria — Rifa Especial 2026">
+  <meta property="og:description" content="Participe da rifa e concorra a prêmios especiais da Daisuki Confeitaria!">
+  <meta property="og:type" content="website">
+  <title>Daisuki Confeitaria — Rifa Especial 2026</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/splitting@1.0.6/dist/splitting.min.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+  <canvas id="grain-canvas" aria-hidden="true"></canvas>
+  <div id="cursor-glow" aria-hidden="true"></div>
+  <canvas id="sakura-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:10;" aria-hidden="true"></canvas>
+
+  <!-- ═══════════════════════════════════════════════════════
+       NAVIGATION
+  ══════════════════════════════════════════════════════════ -->
+  <nav id="navbar" role="navigation" aria-label="Navegação principal">
+    <a href="#" class="nav-logo" aria-label="Daisuki Confeitaria">
+      <span class="nav-logo-name">Daisuki</span>
+      <span class="nav-logo-sub">· Confeitaria ·</span>
+    </a>
+
+    <a href="#rifa" class="btn btn-rose nav-cta btn-shimmer">
+      Participar da Rifa <span class="btn-arrow">→</span>
+    </a>
+  </nav>
+
+  <main>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 0 — VIDEO SCROLL HERO
+    ══════════════════════════════════════════════════════════ -->
+    <div id="video-scroll-container" aria-label="Vídeo de apresentação">
+      <div class="video-sticky-wrapper">
+
+        <video
+          id="hero-video"
+          muted
+          playsinline
+          preload="auto"
+          aria-hidden="true"
+          disablePictureInPicture>
+          <source src="hf_20260527_071634_36ab42fc-23b7-466c-8780-fb6cdc8bfe8f.mp4" type="video/mp4">
+        </video>
+
+        <div class="video-dark-overlay" aria-hidden="true"></div>
+
+        <div class="video-overlay-text" id="video-overlay-text">
+          <span class="video-label" data-splitting>DAISUKI CONFEITARIA · RIFA 2026</span>
+          <h1 class="video-headline">
+            <span data-splitting>Participe da</span><br>
+            <span data-splitting>rifa <span class="text-rose">especial.</span></span>
+          </h1>
+          <a href="#rifa" class="btn btn-rose btn-shimmer video-cta-btn" style="margin-top:2rem">
+            PARTICIPAR DA RIFA <span class="btn-arrow">→</span>
+          </a>
+        </div>
+
+        <div class="scroll-indicator-video" id="scroll-indicator-video" aria-hidden="true">
+          <span>ROLE PARA BAIXO</span>
+          <span class="si-arrow">↓</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 1 — RIFA ESPECIAL
+    ══════════════════════════════════════════════════════════ -->
+    <section id="rifa" class="section" aria-label="Rifa especial">
+      <div class="container">
+
+        <!-- PASSO 1: escolha a modalidade -->
+        <div id="rifa-step-choose">
+          <div class="rifa-choose-header">
+            <span class="section-label">Rifa Especial 2026 —</span>
+            <h2 class="rifa-choose-headline">
+              Como você quer<br>
+              <span class="text-rose">participar?</span>
+            </h2>
+            <p class="rifa-choose-sub">
+              Escolha a modalidade e preencha seus dados.<br>
+              O sorteio acontece em <strong>15 de junho de 2026</strong>.
+            </p>
+          </div>
+
+          <div class="option-cards">
+
+            <button class="option-card" id="btn-option-fly" type="button" aria-label="Participar modalidade Fly">
+              <div class="option-card-inner">
+                <span class="option-icon" aria-hidden="true">🕊️</span>
+                <h3 class="option-title">Fly</h3>
+                <p class="option-desc">Ganhe <strong>1 número</strong> gratuitamente só por se cadastrar</p>
+                <span class="option-cta">Quero participar →</span>
+              </div>
+            </button>
+
+            <button class="option-card option-card--compra" id="btn-option-compra" type="button" aria-label="Participar modalidade Compra">
+              <div class="option-card-inner">
+                <span class="option-icon" aria-hidden="true">🎫</span>
+                <h3 class="option-title">Compra</h3>
+                <p class="option-desc">Escolha <strong>quantos bilhetes</strong> você quer e aumente suas chances</p>
+                <span class="option-cta">Quero comprar →</span>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- PASSO 2: formulário -->
+        <div id="rifa-step-form" hidden>
+
+          <button class="form-back-btn" id="form-back-btn" type="button">
+            ← Voltar
+          </button>
+
+          <div class="rifa-form-card glass-sweep form-card-reveal" id="rifa-form-card">
+
+            <div class="form-header">
+              <div class="form-mode-tag" id="form-mode-tag">Fly</div>
+              <div class="form-title-wrapper">
+                <div class="form-gold-line"></div>
+                <h3 class="form-title" id="form-title">Participar — Fly</h3>
+                <div class="form-gold-line"></div>
+              </div>
+              <p class="form-subtitle">Rifa Especial 2026 · Daisuki Confeitaria</p>
+            </div>
+
+            <div class="form-error-msg" id="form-error-msg" role="alert" aria-live="polite"></div>
+
+            <form id="rifa-form" novalidate aria-label="Formulário de participação">
+
+              <div class="form-group">
+                <label class="form-label" for="f-nome">Nome *</label>
+                <input type="text" id="f-nome" name="nome" class="form-input"
+                       placeholder="Seu nome completo" autocomplete="name">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="f-social">Rede Social *</label>
+                <input type="text" id="f-social" name="social" class="form-input"
+                       placeholder="@seu.instagram">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="f-email">E-mail *</label>
+                <input type="email" id="f-email" name="email" class="form-input"
+                       placeholder="seu@email.com" autocomplete="email">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="f-telefone-jp">Telefone *</label>
+                <input type="tel" id="f-telefone-jp" name="telefone" class="form-input"
+                       placeholder="080-XXXX-XXXX">
+              </div>
+
+              <!-- Quantidade — visível apenas na modalidade Compra -->
+              <div class="form-group" id="qty-group" hidden>
+                <label class="form-label">Quantidade de bilhetes *</label>
+                <div class="ticket-stepper" role="group" aria-label="Quantidade de bilhetes">
+                  <button type="button" class="stepper-btn" id="stepper-minus" aria-label="Diminuir">−</button>
+                  <div class="stepper-display">
+                    <span class="stepper-num" id="stepper-num">1</span>
+                    <span class="stepper-label" id="stepper-label">bilhete</span>
+                  </div>
+                  <button type="button" class="stepper-btn" id="stepper-plus" aria-label="Aumentar">+</button>
+                  <input type="hidden" id="f-quantidade" name="quantidade" value="1">
+                </div>
+                <p class="stepper-hint" id="stepper-hint">
+                  Você receberá <strong style="color:var(--rose)" id="hint-num">1</strong> número exclusivo.
+                </p>
+              </div>
+
+              <div class="form-info-box" id="form-info-box" role="note">
+                <span class="form-info-title">♡ Como funciona</span>
+                <span id="form-info-text">Preencha seus dados e garanta sua participação!</span>
+              </div>
+
+              <button type="submit" class="btn btn-submit btn-shimmer" id="btn-submit">
+                <span id="btn-text">Garantir meu número</span>
+                <span class="btn-arrow" id="btn-arrow">→</span>
+              </button>
+
+              <p class="form-security">🔒 Seus dados estão seguros. Sem cobrança online.</p>
+
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════════ -->
+  <footer id="footer" aria-label="Rodapé">
+    <div class="container footer-content-wrapper">
+      <div class="footer-bottom" style="text-align:center;padding:2rem 0">
+        <p class="footer-logo-name" style="margin-bottom:0.5rem">
+          Daisuki<span class="footer-logo-dot">·</span>Confeitaria
+        </p>
+        <p class="footer-copy">
+          © 2026 Daisuki Confeitaria · Japão
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/splitting@1.0.6/dist/splitting.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+  <script src="js/core.js"></script>
+  <script src="js/sakura.js"></script>
+  <script src="js/video.js"></script>
+  <script src="js/form.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Daisuki Admin — Painel de Controle</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/pages.css">
+
+  <style>
+    body { cursor: auto; background: var(--cream-dark); }
+
+    .admin-stats {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-stat-card {
+      background: var(--white-warm);
+      border-radius: var(--radius-md);
+      padding: 1.5rem 2rem;
+      box-shadow: var(--shadow-soft);
+      min-width: 160px;
+    }
+
+    .admin-stat-label {
+      font-family: var(--font-body);
+      font-size: 0.62rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .admin-stat-value {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 400;
+      color: var(--chocolate);
+      line-height: 1;
+    }
+
+    .admin-winner-section {
+      background: var(--white-warm);
+      border-radius: var(--radius-md);
+      padding: 1.8rem;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-winner-section h3 {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--chocolate-mid);
+      flex: 1 1 100%;
+      margin-bottom: 0.75rem;
+    }
+
+    #winner-input {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      padding: 0.6rem 1.2rem;
+      border: 1.5px solid rgba(44,24,16,0.15);
+      border-radius: var(--radius-sm);
+      color: var(--chocolate);
+      background: var(--cream);
+      letter-spacing: 0.05em;
+      min-width: 200px;
+    }
+
+    #winner-input:focus {
+      border-color: var(--rose);
+      outline: none;
+    }
+
+    .admin-section-title {
+      font-family: var(--font-body);
+      font-size: 0.68rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--chocolate-mid);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .admin-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(44,24,16,0.1);
+    }
+
+    .admin-table-wrapper {
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .btn-admin {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 0.7em 1.6em;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-admin-rose {
+      background: var(--rose);
+      color: var(--white-warm);
+      border: none;
+    }
+
+    .btn-admin-rose:hover {
+      background: var(--rose-dark);
+    }
+
+    .btn-admin-outline {
+      background: transparent;
+      color: var(--chocolate-mid);
+      border: 1.5px solid rgba(44,24,16,0.2);
+    }
+
+    .btn-admin-outline:hover {
+      border-color: var(--rose);
+      color: var(--rose);
+    }
+
+    #winner-msg {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      color: var(--rose);
+      margin-top: 0.5rem;
+    }
+
+    .admin-empty {
+      padding: 3rem;
+      text-align: center;
+      color: var(--chocolate-mid);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body class="admin-page">
+
+  <header class="admin-header">
+    <h1 class="admin-title">Daisuki · Painel Admin</h1>
+    <a href="/" class="btn-admin btn-admin-outline">← Voltar ao site</a>
+  </header>
+
+  <div class="admin-body">
+
+    <!-- Stats -->
+    <div class="admin-stats">
+      <div class="admin-stat-card">
+        <span class="admin-stat-label">Total de Participantes</span>
+        <div class="admin-stat-value" id="admin-total">—</div>
+      </div>
+      <div class="admin-stat-card">
+        <span class="admin-stat-label">Data do Sorteio</span>
+        <div class="admin-stat-value" style="font-size:1.4rem">15/06/2026</div>
+      </div>
+    </div>
+
+    <!-- Set winner -->
+    <div class="admin-winner-section">
+      <h3>Definir número vencedor</h3>
+      <input type="text" id="winner-input" placeholder="DAISUKI-XXXX" autocomplete="off">
+      <button class="btn-admin btn-admin-rose" id="set-winner-btn">
+        Definir Ganhador
+      </button>
+      <button class="btn-admin btn-admin-outline" onclick="window.open('/resultado.html','_blank')">
+        Ver resultado público
+      </button>
+      <p id="winner-msg"></p>
+    </div>
+
+    <!-- Participants table -->
+    <div class="admin-section-title">
+      Participantes
+      <button class="btn-admin btn-admin-outline" id="refresh-btn" style="margin-left:auto;margin-right:0">
+        ↻ Atualizar
+      </button>
+    </div>
+
+    <div class="admin-table-wrapper">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>WhatsApp</th>
+            <th>Número</th>
+            <th>Qtd</th>
+            <th>Data/Hora</th>
+          </tr>
+        </thead>
+        <tbody id="admin-tbody">
+          <tr>
+            <td colspan="7">
+              <div class="admin-empty">Carregando participantes...</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

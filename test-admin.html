@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Daisuki — Painel de Teste (Local)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --cream:         #F7F0E8;
+      --cream-dark:    #EDE0D0;
+      --rose:          #C17B72;
+      --rose-light:    #DDB5AD;
+      --rose-dark:     #9A5E56;
+      --chocolate:     #2C1810;
+      --chocolate-mid: #6B3D2E;
+      --gold:          #C9A87A;
+      --white-warm:    #FDFAF6;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      background: var(--cream-dark);
+      color: var(--chocolate);
+      min-height: 100vh;
+      cursor: auto;
+    }
+
+    /* ─── Header ──────────────────────────────────────── */
+    .header {
+      background: var(--chocolate);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+    }
+
+    .header-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: var(--cream);
+      letter-spacing: -0.01em;
+    }
+
+    .header-badge {
+      font-size: 0.55rem;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--rose-light);
+      border: 1px solid rgba(193,123,114,0.4);
+      padding: 0.2em 0.7em;
+      border-radius: 100px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-sm {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 0.55em 1.3em;
+      border-radius: 100px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4em;
+    }
+
+    .btn-rose   { background: var(--rose); color: var(--white-warm); }
+    .btn-rose:hover { background: var(--rose-dark); }
+
+    .btn-outline {
+      background: transparent;
+      color: rgba(247,240,232,0.55);
+      border: 1px solid rgba(247,240,232,0.2);
+    }
+    .btn-outline:hover { color: var(--cream); border-color: rgba(247,240,232,0.5); }
+
+    .btn-danger { background: rgba(192,57,43,0.85); color: white; }
+    .btn-danger:hover { background: #c0392b; }
+
+    /* ─── Stats bar ───────────────────────────────────── */
+    .stats-bar {
+      background: var(--white-warm);
+      border-bottom: 1px solid rgba(44,24,16,0.08);
+      padding: 1.2rem 2rem;
+      display: flex;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .stat-label {
+      font-size: 0.55rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--rose);
+      font-weight: 400;
+    }
+
+    .stat-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.7rem;
+      font-weight: 400;
+      color: var(--chocolate);
+      line-height: 1;
+    }
+
+    .stat-value.small { font-size: 1rem; font-family: 'Jost', sans-serif; }
+
+    .stats-bar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .search-input {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.82rem;
+      padding: 0.55rem 1rem;
+      border: 1.5px solid rgba(44,24,16,0.12);
+      border-radius: 100px;
+      background: var(--cream);
+      color: var(--chocolate);
+      width: 220px;
+      transition: border-color 0.25s;
+    }
+    .search-input:focus { outline: none; border-color: var(--rose); }
+    .search-input::placeholder { color: rgba(44,24,16,0.35); }
+
+    /* ─── Main body ───────────────────────────────────── */
+    .body-wrap {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ─── Section title ───────────────────────────────── */
+    .section-title {
+      font-size: 0.62rem;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--chocolate-mid);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      opacity: 0.75;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(44,24,16,0.1);
+    }
+
+    /* ─── Table ────────────────────────────────────────── */
+    .table-wrapper {
+      background: var(--white-warm);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(44,24,16,0.08);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+
+    thead tr {
+      background: var(--chocolate);
+    }
+
+    th {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.58rem;
+      font-weight: 400;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(247,240,232,0.7);
+      padding: 1rem 1.2rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.9rem 1.2rem;
+      border-bottom: 1px solid rgba(44,24,16,0.055);
+      color: var(--chocolate-mid);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tbody tr:hover td { background: rgba(247,240,232,0.55); }
+
+    .td-numero {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--rose);
+      letter-spacing: 0.05em;
+    }
+
+    .td-nome { font-weight: 400; color: var(--chocolate); }
+
+    .badge-qtd {
+      display: inline-block;
+      background: rgba(193,123,114,0.12);
+      color: var(--rose-dark);
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      padding: 0.25em 0.7em;
+      border-radius: 100px;
+    }
+
+    .btn-del {
+      background: none;
+      border: none;
+      color: rgba(192,57,43,0.4);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.3em 0.5em;
+      border-radius: 6px;
+      transition: all 0.2s;
+      line-height: 1;
+    }
+    .btn-del:hover { background: rgba(192,57,43,0.08); color: #c0392b; }
+
+    /* ─── Empty state ─────────────────────────────────── */
+    .empty-state {
+      padding: 5rem 2rem;
+      text-align: center;
+    }
+
+    .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+    .empty-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 300;
+      color: var(--chocolate);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-sub {
+      font-size: 0.82rem;
+      color: var(--chocolate-mid);
+      opacity: 0.6;
+      line-height: 1.6;
+    }
+
+    /* ─── Winner panel ────────────────────────────────── */
+    .winner-panel {
+      background: var(--white-warm);
+      border-radius: 16px;
+      padding: 1.8rem 2rem;
+      box-shadow: 0 4px 24px rgba(44,24,16,0.08);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      border-left: 3px solid var(--rose);
+    }
+
+    .winner-panel h3 {
+      flex: 1 1 100%;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 0.75rem;
+    }
+
+    #winner-input {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      padding: 0.6rem 1.2rem;
+      border: 1.5px solid rgba(44,24,16,0.15);
+      border-radius: 8px;
+      color: var(--chocolate);
+      background: var(--cream);
+      letter-spacing: 0.05em;
+      min-width: 200px;
+      flex: 1;
+      max-width: 280px;
+    }
+    #winner-input:focus { outline: none; border-color: var(--rose); }
+
+    #winner-display {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      color: var(--rose);
+      font-style: italic;
+      padding: 0.5rem 1rem;
+      background: rgba(193,123,114,0.08);
+      border-radius: 8px;
+      display: none;
+    }
+
+    #winner-display.has-winner { display: block; }
+
+    /* ─── Export / storage note ───────────────────────── */
+    .storage-note {
+      background: rgba(201,168,122,0.1);
+      border: 1px solid rgba(201,168,122,0.3);
+      border-radius: 10px;
+      padding: 1rem 1.4rem;
+      font-size: 0.78rem;
+      color: var(--chocolate-mid);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .storage-note-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ─── Toast ───────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--chocolate);
+      color: var(--cream);
+      font-family: 'Jost', sans-serif;
+      font-size: 0.78rem;
+      padding: 0.9rem 1.5rem;
+      border-radius: 100px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.35s ease;
+      pointer-events: none;
+      z-index: 9999;
+      max-width: 320px;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── Responsive ──────────────────────────────────── */
+    @media (max-width: 600px) {
+      .header { padding: 0 1rem; }
+      .body-wrap { padding: 1rem; }
+      .stats-bar { padding: 1rem; gap: 1.5rem; }
+      .stats-bar-right { margin-left: 0; flex: 1 1 100%; }
+      .search-input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <span class="header-logo">Daisuki</span>
+      <span class="header-badge">Painel de Teste · Local</span>
+    </div>
+    <div class="header-actions">
+      <a href="index.html" class="btn-sm btn-outline" target="_blank">Ver site →</a>
+      <button class="btn-sm btn-rose" id="btn-export">⬇ Exportar CSV</button>
+      <button class="btn-sm btn-danger" id="btn-clear-all">🗑 Limpar tudo</button>
+    </div>
+  </header>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-label">Participantes</span>
+      <span class="stat-value" id="stat-total">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Números gerados</span>
+      <span class="stat-value" id="stat-numeros">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Último cadastro</span>
+      <span class="stat-value small" id="stat-last">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Sorteio</span>
+      <span class="stat-value small">15/06/2026 · 20h JST</span>
+    </div>
+    <div class="stats-bar-right">
+      <input
+        type="text"
+        class="search-input"
+        id="search-input"
+        placeholder="Buscar por nome, e-mail..."
+        autocomplete="off"
+      >
+      <button class="btn-sm btn-outline" id="btn-refresh" style="border-color:rgba(44,24,16,0.2);color:var(--chocolate-mid)">
+        ↻ Atualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body-wrap">
+
+    <!-- Storage note -->
+    <div class="storage-note">
+      <span class="storage-note-icon">💾</span>
+      <span>
+        Os dados são salvos no <strong>localStorage</strong> do seu navegador —
+        ficam permanentes neste computador até que você os limpe manualmente.
+        Use <strong>Exportar CSV</strong> para guardar uma cópia.
+        Quando integrar o Google Sheets, os dados migram para lá automaticamente.
+      </span>
+    </div>
+
+    <!-- Winner panel -->
+    <div class="winner-panel">
+      <h3>🎉 Definir número ganhador (para página de resultado)</h3>
+      <input type="text" id="winner-input" placeholder="DAISUKI-XXXX" autocomplete="off">
+      <button class="btn-sm btn-rose" id="btn-set-winner">Salvar ganhador</button>
+      <div id="winner-display"></div>
+      <button class="btn-sm btn-outline" onclick="window.open('resultado.html','_blank')" style="border-color:rgba(44,24,16,0.15);color:var(--chocolate-mid)">
+        Ver resultado →
+      </button>
+    </div>
+
+    <!-- Participants table -->
+    <div class="section-title" id="table-section-title">
+      Participantes <span id="count-label" style="opacity:.5;font-size:.9em"></span>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Números da rifa</th>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>WhatsApp</th>
+            <th>Bilhetes</th>
+            <th>Data · Hora</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <script>
+    /* ============================================================
+       TEST-ADMIN.JS — inline
+       localStorage key: daisuki_participantes
+       ============================================================ */
+
+    const STORAGE_KEY        = 'daisuki_participantes';
+    const STORAGE_WINNER_KEY = 'daisuki_winner';
+
+    // ─── Read / Write helpers ──────────────────────────────────
+    function getParticipants() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      } catch { return []; }
+    }
+
+    function saveParticipants(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function getWinner() {
+      return localStorage.getItem(STORAGE_WINNER_KEY) || '';
+    }
+
+    function saveWinner(numero) {
+      localStorage.setItem(STORAGE_WINNER_KEY, numero);
+    }
+
+    // ─── Stats ────────────────────────────────────────────────
+    function updateStats(data) {
+      const totalEl   = document.getElementById('stat-total');
+      const numerosEl = document.getElementById('stat-numeros');
+      const lastEl    = document.getElementById('stat-last');
+
+      if (totalEl)   totalEl.textContent   = data.length;
+      if (numerosEl) numerosEl.textContent = data.reduce((s, p) => s + (parseInt(p.quantidade) || 1), 0);
+      if (lastEl) {
+        if (data.length > 0) {
+          const last = data[data.length - 1];
+          lastEl.textContent = last.dataHora || '—';
+        } else {
+          lastEl.textContent = '—';
+        }
+      }
+    }
+
+    // ─── Render table ─────────────────────────────────────────
+    function renderTable(filter) {
+      const all   = getParticipants();
+      const query = (filter || '').toLowerCase().trim();
+
+      const filtered = query
+        ? all.filter((p) =>
+            (p.nome     || '').toLowerCase().includes(query) ||
+            (p.email    || '').toLowerCase().includes(query) ||
+            (p.numero   || '').toLowerCase().includes(query) ||
+            (p.whatsapp || '').toLowerCase().includes(query)
+          )
+        : all;
+
+      updateStats(all);
+
+      const countLabel = document.getElementById('count-label');
+      if (countLabel) {
+        countLabel.textContent = query
+          ? `— ${filtered.length} de ${all.length} resultados`
+          : `— ${all.length} cadastros`;
+      }
+
+      const tbody = document.getElementById('table-body');
+      if (!tbody) return;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr><td colspan="9">
+            <div class="empty-state">
+              <div class="empty-icon">🍫</div>
+              <div class="empty-title">${query ? 'Nenhum resultado encontrado' : 'Nenhum participante ainda'}</div>
+              <p class="empty-sub">
+                ${query
+                  ? 'Tente outro termo de busca.'
+                  : 'Assim que alguém preencher o formulário no site,<br>os dados aparecerão aqui em tempo real.'
+                }
+              </p>
+            </div>
+          </td></tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered
+        .slice()
+        .reverse() // Most recent first
+        .map((p, i) => {
+          const idx = filtered.length - i;
+          /* Números: suporta array ou campo único legado */
+        const nums = Array.isArray(p.numeros) ? p.numeros : [p.numero].filter(Boolean);
+        const numsHtml = nums.map(n =>
+          `<span class="td-numero" style="display:inline-block;margin:1px 3px 1px 0">${escHtml(n)}</span>`
+        ).join('');
+
+        return `
+            <tr data-id="${escHtml(p.id)}">
+              <td style="opacity:.4;font-size:.75rem">${idx}</td>
+              <td>${numsHtml || '—'}</td>
+              <td class="td-nome">${escHtml(p.nome || '—')}</td>
+              <td>${escHtml(p.email || '—')}</td>
+              <td>${escHtml(p.whatsapp || '—')}</td>
+              <td><span class="badge-qtd">${escHtml(String(nums.length || p.quantidade || '1'))}</span></td>
+              <td style="opacity:.55;font-size:.75rem">${escHtml(p.dataHora || '—')}</td>
+              <td>
+                <button class="btn-del" onclick="deleteParticipant('${escHtml(p.id)}')" title="Remover">✕</button>
+              </td>
+            </tr>
+          `;
+        })
+        .join('');
+    }
+
+    // ─── Delete one ───────────────────────────────────────────
+    window.deleteParticipant = function(id) {
+      const all     = getParticipants();
+      const updated = all.filter((p) => p.id !== id);
+      saveParticipants(updated);
+      renderTable(document.getElementById('search-input')?.value || '');
+      toast('Participante removido.');
+    };
+
+    // ─── Clear all ────────────────────────────────────────────
+    document.getElementById('btn-clear-all')?.addEventListener('click', () => {
+      const total = getParticipants().length;
+      if (total === 0) { toast('Não há dados para limpar.'); return; }
+      if (!confirm(`Tem certeza? Isso apagará ${total} participante(s) permanentemente.`)) return;
+      localStorage.removeItem(STORAGE_KEY);
+      renderTable('');
+      toast('Todos os dados foram apagados.');
+    });
+
+    // ─── Refresh ──────────────────────────────────────────────
+    document.getElementById('btn-refresh')?.addEventListener('click', () => {
+      renderTable(document.getElementById('search-input')?.value || '');
+      toast('Dados atualizados!');
+    });
+
+    // ─── Search ───────────────────────────────────────────────
+    document.getElementById('search-input')?.addEventListener('input', (e) => {
+      renderTable(e.target.value);
+    });
+
+    // ─── Export CSV ───────────────────────────────────────────
+    document.getElementById('btn-export')?.addEventListener('click', () => {
+      const data = getParticipants();
+      if (!data.length) { toast('Nenhum dado para exportar.'); return; }
+
+      const header = ['ID','Número','Nome','E-mail','WhatsApp','Quantidade','Números Desejados','Data/Hora'];
+      const rows   = data.map((p) => [
+        p.id,
+        Array.isArray(p.numeros) ? p.numeros.join(' | ') : (p.numero || ''),
+        p.nome, p.email,
+        p.whatsapp, p.quantidade, p.dataHora,
+      ].map((v) => `"${String(v || '').replace(/"/g, '""')}"`));
+
+      const csv  = [header, ...rows].map((r) => r.join(',')).join('\n');
+      const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `daisuki-participantes-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('CSV exportado!');
+    });
+
+    // ─── Set winner ───────────────────────────────────────────
+    document.getElementById('btn-set-winner')?.addEventListener('click', () => {
+      const input = document.getElementById('winner-input');
+      const val   = input?.value.trim();
+      if (!val) { toast('Digite o número ganhador primeiro.'); return; }
+
+      saveWinner(val);
+      updateWinnerDisplay();
+      toast(`Ganhador salvo: ${val}`);
+    });
+
+    function updateWinnerDisplay() {
+      const winner  = getWinner();
+      const display = document.getElementById('winner-display');
+      const input   = document.getElementById('winner-input');
+
+      if (display) {
+        if (winner) {
+          display.textContent = `✓ Ganhador atual: ${winner}`;
+          display.classList.add('has-winner');
+        } else {
+          display.classList.remove('has-winner');
+        }
+      }
+
+      if (input && winner && !input.value) {
+        input.value = winner;
+      }
+    }
+
+    // ─── Toast ────────────────────────────────────────────────
+    let toastTimer;
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    // ─── XSS safe ─────────────────────────────────────────────
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+    }
+
+    // ─── Listen for new submissions from other tabs ───────────
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEY) {
+        renderTable(document.getElementById('search-input')?.value || '');
+        toast('Novo participante registrado!');
+      }
+    });
+
+    // ─── Init ─────────────────────────────────────────────────
+    renderTable('');
+    updateWinnerDisplay();
+  </script>
+</body>
+</html>

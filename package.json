@@ -1,0 +1,16 @@
+{
+  "name": "daisuki-confeitaria",
+  "version": "1.0.0",
+  "description": "Daisuki Confeitaria — website e rifa especial",
+  "private": true,
+  "engines": {
+    "node": ">=18.x"
+  },
+  "dependencies": {
+    "googleapis": "^140.0.0"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  }
+}

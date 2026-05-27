@@ -1,0 +1,311 @@
+/* ============================================================
+   BASE.CSS — Daisuki Confeitaria
+   Design tokens, typography, reset, global utilities
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap');
+
+/* ─── Design Tokens ─────────────────────────────────────── */
+:root {
+  --cream:          #F7F0E8;
+  --cream-dark:     #EDE0D0;
+  --rose:           #C17B72;
+  --rose-light:     #DDB5AD;
+  --rose-dark:      #9A5E56;
+  --chocolate:      #2C1810;
+  --chocolate-mid:  #6B3D2E;
+  --gold:           #C9A87A;
+  --white-warm:     #FDFAF6;
+  --overlay:        rgba(44,24,16,0.55);
+
+  --font-display:   'Cormorant Garamond', Georgia, serif;
+  --font-body:      'Jost', system-ui, sans-serif;
+
+  --ease-luxury:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out:       cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out:    cubic-bezier(0.45, 0, 0.55, 1);
+
+  --shadow-soft:    0 4px 24px rgba(44,24,16,0.07);
+  --shadow-medium:  0 8px 40px rgba(44,24,16,0.11);
+  --shadow-large:   0 16px 64px rgba(44,24,16,0.15);
+  --shadow-luxury:  0 24px 80px rgba(44,24,16,0.19);
+
+  --radius-sm:      8px;
+  --radius-md:      16px;
+  --radius-lg:      24px;
+  --radius-pill:    100px;
+}
+
+/* ─── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  color: var(--chocolate);
+  background-color: var(--cream);
+  overflow-x: hidden;
+  cursor: auto;
+  min-height: 100vh;
+}
+
+body.touch-device { cursor: auto; }
+
+img, video {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  border: none;
+  outline: none;
+  background: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+ul, ol { list-style: none; }
+
+/* ─── Typography ─────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: clamp(2.8rem, 5.5vw, 5.5rem); }
+h2 { font-size: clamp(2rem,   3.8vw, 3.8rem); }
+h3 { font-size: clamp(1.5rem, 2.4vw, 2.2rem); }
+h4 { font-size: clamp(1.2rem, 1.8vw, 1.6rem); }
+
+p {
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
+  color: var(--chocolate-mid);
+}
+
+/* ─── Colour utilities ───────────────────────────────────── */
+.text-rose       { color: var(--rose); }
+.text-rose-light { color: var(--rose-light); }
+.text-gold       { color: var(--gold); }
+.text-cream      { color: var(--cream); }
+.text-chocolate  { color: var(--chocolate); }
+.italic          { font-style: italic; }
+
+/* ─── Layout utilities ───────────────────────────────────── */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 5rem);
+}
+
+.section-label {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.65rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--rose);
+  margin-bottom: 1.4rem;
+}
+
+.decorative-line {
+  width: 56px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--rose) 0%, transparent 100%);
+  margin: 1.5rem 0;
+  transform-origin: left center;
+}
+
+/* ─── Buttons ────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.72rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0.95em 2.4em;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s var(--ease-luxury);
+  white-space: nowrap;
+}
+
+.btn .btn-arrow {
+  display: inline-block;
+  transition: transform 0.4s var(--ease-luxury);
+}
+
+.btn:hover .btn-arrow { transform: translateX(5px); }
+.btn:hover            { transform: translateY(-2px) scale(1.015); }
+.btn:active           { transform: scale(0.97); transition-duration: 0.1s; }
+
+.btn-rose {
+  background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dark) 100%);
+  color: var(--white-warm);
+  box-shadow: 0 4px 20px rgba(193,123,114,0.28);
+}
+
+.btn-rose::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255,252,248,0.12) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s var(--ease-luxury);
+}
+
+.btn-rose:hover::before {
+  transform: translateX(100%);
+}
+
+.btn-rose:hover {
+  box-shadow: 0 8px 32px rgba(193,123,114,0.38);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--chocolate);
+  border: 1.5px solid rgba(44,24,16,0.25);
+}
+
+.btn-outline:hover {
+  border-color: var(--rose);
+  color: var(--rose);
+}
+
+/* ─── Trust bar ──────────────────────────────────────────── */
+.trust-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(1.2rem, 3vw, 3rem);
+  padding: 2rem 0;
+  border-top: 1px solid rgba(193,123,114,0.15);
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--chocolate-mid);
+  opacity: 0.75;
+}
+
+.trust-item::before {
+  content: '✦';
+  color: var(--rose-light);
+  font-size: 0.55rem;
+  opacity: 0.8;
+}
+
+/* ─── Section spacing ────────────────────────────────────── */
+.section {
+  padding: clamp(5rem, 10vh, 9rem) 0;
+  position: relative;
+}
+
+/* ─── Grain canvas ───────────────────────────────────────── */
+#grain-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: soft-light;
+  opacity: 0.022;
+}
+
+/* ─── Cursor glow ────────────────────────────────────────── */
+#cursor-glow {
+  position: fixed;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(193,123,114,0.18) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  filter: blur(30px);
+  transition: opacity 0.3s;
+  opacity: 0;
+  mix-blend-mode: multiply;
+}
+
+/* cursor glow desativado — cursor do sistema sempre visível */
+body:not(.touch-device) #cursor-glow { opacity: 0; pointer-events: none; }
+
+/* ─── Accessibility ──────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+}
+
+/* ─── Scroll Reveal initial states ──────────────────────── */
+.reveal-text  { opacity: 0; transform: translateY(45px); }
+.reveal-image { opacity: 0; transform: translateY(25px) scale(1.04); filter: blur(8px); }
+.reveal-card  { opacity: 0; transform: translateY(55px); filter: blur(4px); }
+.reveal-line  { opacity: 0; transform: scaleX(0); transform-origin: left center; }
+
+.revealed {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* ─── Reduced motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal-text, .reveal-image, .reveal-card, .reveal-line {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
