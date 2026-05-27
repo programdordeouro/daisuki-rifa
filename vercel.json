@@ -20,6 +20,10 @@
       "dest": "/api/cadastro.js"
     },
     {
+      "src": "/api/test",
+      "dest": "/api/test.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }
