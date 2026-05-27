@@ -1,76 +1,43 @@
 /* ============================================================
    api/cadastro.js — Daisuki Confeitaria
-   Vercel Serverless Function
    POST /api/cadastro
-   Fields: nome, social, email, telefone (JP),
-           modalidade (fly|compra), quantidade
+   Valida, salva no Supabase, gera magic link para login
    ============================================================ */
 
-const { google } = require('googleapis');
+const { createClient } = require('@supabase/supabase-js');
 
-function getAuth() {
-  return new google.auth.GoogleAuth({
-    credentials: {
-      type:          'service_account',
-      project_id:    process.env.GOOGLE_PROJECT_ID || 'daisuki',
-      private_key:   (process.env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-      client_email:  process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '',
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+const SUPABASE_URL     = process.env.SUPABASE_URL;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SITE_URL         = process.env.SITE_URL || 'https://daisuki-zeta.vercel.app';
+
+function getSupabase() {
+  return createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
   });
-}
-
-async function getSheetRows(sheets, sheetName) {
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: process.env.GOOGLE_SHEETS_ID,
-    range: `${sheetName}!A:Z`,
-  });
-  return res.data.values || [];
-}
-
-async function appendRow(sheets, sheetName, values) {
-  await sheets.spreadsheets.values.append({
-    spreadsheetId:   process.env.GOOGLE_SHEETS_ID,
-    range:           `${sheetName}!A:Z`,
-    valueInputOption: 'USER_ENTERED',
-    requestBody:     { values: [values] },
-  });
-}
-
-function generateNumbers(n, existingNumbers) {
-  const result  = [];
-  const used    = new Set(existingNumbers);
-  let   retries = 0;
-
-  while (result.length < n && retries < n * 20) {
-    const num = `DAISUKI-${String(Math.floor(1000 + Math.random() * 9000))}`;
-    if (!used.has(num)) {
-      result.push(num);
-      used.add(num);
-    }
-    retries++;
-  }
-
-  return result.length === n ? result : null;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validate({ nome, social, email, telefone, quantidade }) {
   const errors = [];
-  if (!nome || !nome.trim())                errors.push('Nome é obrigatório.');
-  if (!social || !social.trim())             errors.push('Rede social é obrigatória.');
-  if (!email || !EMAIL_RE.test(email.trim())) errors.push('E-mail inválido.');
+  if (!nome?.trim())   errors.push('Nome é obrigatório.');
+  if (!social?.trim()) errors.push('Rede social é obrigatória.');
+  if (!EMAIL_RE.test(email?.trim())) errors.push('E-mail inválido.');
   if (!telefone || telefone.replace(/\D/g, '').length < 10) errors.push('Telefone inválido.');
-  if (!quantidade)                           errors.push('Quantidade é obrigatória.');
+  if (!quantidade)     errors.push('Quantidade é obrigatória.');
   return errors;
 }
 
-function getIP(req) {
-  return req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
-         req.headers['x-real-ip'] ||
-         req.socket?.remoteAddress ||
-         'unknown';
+function generateNumbers(n, existingNums) {
+  const used   = new Set(existingNums);
+  const result = [];
+  let   tries  = 0;
+  while (result.length < n && tries < n * 20) {
+    const num = `DAISUKI-${String(Math.floor(1000 + Math.random() * 9000))}`;
+    if (!used.has(num)) { result.push(num); used.add(num); }
+    tries++;
+  }
+  return result.length === n ? result : null;
 }
 
 module.exports = async function handler(req, res) {
@@ -82,11 +49,8 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST')    return res.status(405).json({ error: 'method_not_allowed' });
 
   let body;
-  try {
-    body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-  } catch {
-    return res.status(400).json({ error: 'invalid_json' });
-  }
+  try { body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body; }
+  catch { return res.status(400).json({ error: 'invalid_json' }); }
 
   const {
     nome       = '',
@@ -98,61 +62,66 @@ module.exports = async function handler(req, res) {
   } = body;
 
   const errors = validate({ nome, social, email, telefone, quantidade });
-  if (errors.length) {
-    return res.status(400).json({ error: 'validation_error', details: errors });
-  }
+  if (errors.length) return res.status(400).json({ error: 'validation_error', details: errors });
 
   const cleanEmail = email.trim().toLowerCase();
-  const cleanNome  = nome.trim();
+  const supabase   = getSupabase();
 
-  try {
-    const auth   = getAuth();
-    const client = await auth.getClient();
-    const sheets = google.sheets({ version: 'v4', auth: client });
+  // ── Checar email duplicado ─────────────────────────────
+  const { data: existing } = await supabase
+    .from('participantes')
+    .select('id')
+    .eq('email', cleanEmail)
+    .maybeSingle();
 
-    // Columns: ID | Nome | Rede Social | Email | Telefone | Modalidade | Numero | Quantidade | Data | Hora | Origem | IP
-    const rows     = await getSheetRows(sheets, 'PARTICIPANTES');
-    const dataRows = rows.slice(1);
+  if (existing) return res.status(409).json({ error: 'duplicate_email' });
 
-    const existingEmails  = new Set(dataRows.map((r) => (r[3] || '').toLowerCase().trim()));
-    const existingNumbers = new Set(dataRows.map((r) => (r[6] || '').trim()));
+  // ── Buscar números já usados ───────────────────────────
+  const { data: allRows } = await supabase.from('participantes').select('numeros');
+  const usedNums = (allRows || []).flatMap((r) => r.numeros || []);
 
-    if (existingEmails.has(cleanEmail)) {
-      return res.status(409).json({ error: 'duplicate_email' });
-    }
+  const qtd     = Math.max(1, Math.min(20, parseInt(quantidade) || 1));
+  const numeros = generateNumbers(qtd, usedNums);
+  if (!numeros) return res.status(500).json({ error: 'server_error', message: 'Não foi possível gerar números únicos.' });
 
-    const qtd     = Math.max(1, Math.min(20, parseInt(quantidade) || 1));
-    const numeros = generateNumbers(qtd, Array.from(existingNumbers));
-    if (!numeros) {
-      return res.status(500).json({ error: 'server_error', message: 'Could not generate unique numbers.' });
-    }
+  // ── Criar usuário no Supabase Auth ─────────────────────
+  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    email:         cleanEmail,
+    email_confirm: true,
+  });
 
-    const now    = new Date();
-    const tzOpts = { timeZone: 'Asia/Tokyo' };
-    const data   = now.toLocaleDateString('pt-BR', tzOpts);
-    const hora   = now.toLocaleTimeString('pt-BR', tzOpts);
-
-    for (let i = 0; i < numeros.length; i++) {
-      await appendRow(sheets, 'PARTICIPANTES', [
-        `P-${Date.now()}-${i}`,  // A: ID
-        cleanNome,                // B: Nome
-        social.trim(),            // C: Rede Social
-        cleanEmail,               // D: Email
-        telefone.trim(),          // E: Telefone
-        modalidade,               // F: Modalidade
-        numeros[i],               // G: Numero
-        qtd,                      // H: Quantidade
-        data,                     // I: Data
-        hora,                     // J: Hora
-        'website',                // K: Origem
-        getIP(req),               // L: IP
-      ]);
-    }
-
-    return res.status(200).json({ success: true, numeros, numero: numeros[0] });
-
-  } catch (err) {
-    console.error('Sheets API error:', err);
-    return res.status(500).json({ error: 'server_error', message: 'Database error.' });
+  if (authError && authError.message !== 'A user with this email address has already been registered') {
+    console.error('Auth error:', authError);
+    return res.status(500).json({ error: 'auth_error' });
   }
+
+  const userId = authData?.user?.id || null;
+
+  // ── Inserir participante ───────────────────────────────
+  const { error: insertError } = await supabase.from('participantes').insert({
+    user_id:    userId,
+    nome:       nome.trim(),
+    social:     social.trim(),
+    email:      cleanEmail,
+    telefone:   telefone.trim(),
+    modalidade,
+    quantidade: qtd,
+    numeros,
+  });
+
+  if (insertError) {
+    console.error('Insert error:', insertError);
+    return res.status(500).json({ error: 'db_error' });
+  }
+
+  // ── Gerar magic link para login automático ─────────────
+  const { data: linkData } = await supabase.auth.admin.generateLink({
+    type:    'magiclink',
+    email:   cleanEmail,
+    options: { redirectTo: `${SITE_URL}/countdown.html` },
+  });
+
+  const magicLink = linkData?.properties?.action_link || null;
+
+  return res.status(200).json({ success: true, numeros, magicLink });
 };

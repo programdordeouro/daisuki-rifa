@@ -89,9 +89,7 @@
       opacity: 0;
       animation: hintIn 0.8s ease 2s forwards;
     }
-    @keyframes hintIn {
-      to { opacity: 0.65; }
-    }
+    @keyframes hintIn { to { opacity: 0.65; } }
 
     /* ── Countdown ───────────────────────────────────────── */
     .cd-countdown { text-align: center; }
@@ -155,6 +153,89 @@
       color: var(--rose); margin-top: 0.6rem;
     }
 
+    /* ── Login overlay ───────────────────────────────────── */
+    #cd-login-overlay {
+      position: fixed; inset: 0;
+      background: var(--cream);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 100; padding: 2rem;
+      text-align: center;
+    }
+
+    .cd-login-logo {
+      font-family: var(--font-display);
+      font-size: 1.8rem; font-weight: 300;
+      color: var(--chocolate);
+      letter-spacing: -0.01em;
+      margin-bottom: 2.5rem;
+    }
+    .cd-login-logo span { color: var(--rose); }
+
+    .cd-login-card {
+      background: rgba(253,250,246,0.92);
+      border: 1px solid rgba(44,24,16,0.09);
+      border-radius: 16px;
+      padding: clamp(2rem, 5vw, 3rem) clamp(1.8rem, 5vw, 2.8rem);
+      max-width: 400px; width: 100%;
+      box-shadow: 0 8px 40px rgba(44,24,16,0.09);
+    }
+
+    .cd-login-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem; font-weight: 400;
+      color: var(--chocolate);
+      margin-bottom: 0.4rem;
+    }
+
+    .cd-login-sub {
+      font-family: var(--font-body); font-size: 0.8rem;
+      font-weight: 300; color: var(--chocolate-mid);
+      line-height: 1.6; margin-bottom: 1.8rem;
+    }
+
+    .cd-login-input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: rgba(247,240,232,0.7);
+      border: 1.5px solid rgba(44,24,16,0.12);
+      border-radius: 8px;
+      font-family: var(--font-body); font-size: 0.9rem;
+      font-weight: 300; color: var(--chocolate);
+      margin-bottom: 0.9rem;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .cd-login-input:focus {
+      border-color: var(--rose);
+      box-shadow: 0 0 0 3px rgba(193,123,114,0.12);
+      background: var(--white-warm);
+    }
+    .cd-login-input::placeholder { color: rgba(44,24,16,0.35); }
+
+    .cd-login-btn {
+      width: 100%;
+      padding: 0.95em 1.5em;
+      background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+      color: var(--white-warm);
+      border: none; border-radius: 8px;
+      font-family: var(--font-body); font-size: 0.75rem;
+      font-weight: 500; letter-spacing: 2.5px;
+      text-transform: uppercase; cursor: pointer;
+      box-shadow: 0 6px 24px rgba(193,123,114,0.3);
+      transition: box-shadow 0.3s, transform 0.2s;
+    }
+    .cd-login-btn:hover:not(:disabled) {
+      box-shadow: 0 10px 36px rgba(193,123,114,0.4);
+      transform: translateY(-1px);
+    }
+    .cd-login-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    .cd-login-msg {
+      font-family: var(--font-body); font-size: 0.78rem;
+      color: var(--rose); margin-top: 1rem;
+      min-height: 1.2em;
+    }
+
     /* ── Mobile ──────────────────────────────────────────── */
     @media (max-width: 480px) {
       .cd-top { padding: 0.8rem 1.2rem; }
@@ -166,6 +247,28 @@
 <body>
 
   <canvas id="grain-canvas" aria-hidden="true"></canvas>
+
+  <!-- Overlay de login (visível quando não há sessão) -->
+  <div id="cd-login-overlay" hidden>
+    <p class="cd-login-logo">Daisuki <span>·</span> Confeitaria</p>
+    <div class="cd-login-card">
+      <h2 class="cd-login-title">Ver meus números</h2>
+      <p class="cd-login-sub">
+        Digite seu e-mail para receber um link de acesso<br>e ver seus bilhetes da rifa.
+      </p>
+      <input
+        type="email"
+        id="cd-login-email"
+        class="cd-login-input"
+        placeholder="seu@email.com"
+        autocomplete="email"
+      >
+      <button class="cd-login-btn" id="cd-login-btn">
+        Enviar link de acesso
+      </button>
+      <p class="cd-login-msg" id="cd-login-msg" aria-live="polite"></p>
+    </div>
+  </div>
 
   <div class="cd-top">
     <a href="index.html" class="cd-back">← voltar</a>
@@ -213,6 +316,7 @@
 
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="js/countdown.js"></script>
 </body>
