@@ -24,10 +24,20 @@
   const urlParams = new URLSearchParams(window.location.search);
   const urlNums   = urlParams.get('numeros') || urlParams.get('numero') || '';
 
-  /* Mostrar números no label do topo */
+  /* Mostrar números no label do topo e na seção destacada */
   function showNums(numeros) {
-    if (!numsLabel || !numeros?.length) return;
-    numsLabel.textContent = numeros.join(' · ');
+    if (!numeros?.length) return;
+
+    if (numsLabel) numsLabel.textContent = numeros.join(' · ');
+
+    const section = document.getElementById('cd-tickets-section');
+    const list    = document.getElementById('cd-tickets-list');
+    if (section && list) {
+      list.innerHTML = numeros
+        .map((n) => `<li class="cd-ticket-num">${n}</li>`)
+        .join('');
+      section.hidden = false;
+    }
   }
 
   /* Buscar números do participante logado (por email) */

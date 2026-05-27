@@ -236,6 +236,36 @@
       min-height: 1.2em;
     }
 
+    /* ── Números do participante ─────────────────────────── */
+    .cd-tickets {
+      text-align: center;
+      margin-top: 0.4rem;
+    }
+
+    .cd-tickets-label {
+      display: block;
+      font-family: var(--font-body); font-size: 0.5rem;
+      letter-spacing: 4px; text-transform: uppercase;
+      color: var(--rose); opacity: 0.7;
+      margin-bottom: 0.65rem;
+    }
+
+    .cd-tickets-list {
+      display: flex; flex-wrap: wrap;
+      justify-content: center; gap: 0.5rem;
+      list-style: none; padding: 0; margin: 0;
+    }
+
+    .cd-ticket-num {
+      font-family: var(--font-body); font-size: 0.65rem;
+      font-weight: 500; letter-spacing: 2px;
+      color: var(--chocolate);
+      background: rgba(44,24,16,0.06);
+      border: 1px solid rgba(44,24,16,0.12);
+      border-radius: 6px;
+      padding: 0.35em 0.85em;
+    }
+
     /* ── Mobile ──────────────────────────────────────────── */
     @media (max-width: 480px) {
       .cd-top { padding: 0.8rem 1.2rem; }
@@ -312,6 +342,11 @@
 
       <p class="cd-date">15 de junho de 2026 · 20h00 JST</p>
       <span id="cd-status-msg" aria-live="polite"></span>
+    </div>
+
+    <div class="cd-tickets" id="cd-tickets-section" hidden>
+      <span class="cd-tickets-label">seus números</span>
+      <ul class="cd-tickets-list" id="cd-tickets-list"></ul>
     </div>
 
   </main>
