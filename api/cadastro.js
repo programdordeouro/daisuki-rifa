@@ -1,19 +1,46 @@
 /* ============================================================
    api/cadastro.js — Daisuki Confeitaria
-   POST /api/cadastro — salva participante no Supabase
-   Auth é feita client-side via magic link (signInWithOtp)
+   POST /api/cadastro
+   Usa Supabase REST API diretamente (sem biblioteca)
    ============================================================ */
 
-const { createClient } = require('@supabase/supabase-js');
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-function getSupabase() {
-  return createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  );
+const HEADERS = {
+  'apikey':        SERVICE_KEY,
+  'Authorization': `Bearer ${SERVICE_KEY}`,
+  'Content-Type':  'application/json',
+};
+
+/* Consulta na tabela via REST */
+async function dbSelect(table, params = '', single = false) {
+  const url = `${SUPABASE_URL}/rest/v1/${table}?${params}`;
+  const res  = await fetch(url, {
+    headers: { ...HEADERS, ...(single ? { 'Accept': 'application/vnd.pgrst.object+json' } : {}) },
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`dbSelect ${table}: ${err}`);
+  }
+  return res.json();
 }
 
+/* Insere uma linha na tabela via REST */
+async function dbInsert(table, row) {
+  const url = `${SUPABASE_URL}/rest/v1/${table}`;
+  const res  = await fetch(url, {
+    method:  'POST',
+    headers: { ...HEADERS, 'Prefer': 'return=minimal' },
+    body:    JSON.stringify(row),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`dbInsert ${table}: ${err}`);
+  }
+}
+
+/* ── Helpers ──────────────────────────────────────────────── */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validate({ nome, social, email, telefone, quantidade }) {
@@ -26,8 +53,8 @@ function validate({ nome, social, email, telefone, quantidade }) {
   return errors;
 }
 
-function generateNumbers(n, existingNums) {
-  const used   = new Set(existingNums);
+function generateNumbers(n, usedNums) {
+  const used   = new Set(usedNums);
   const result = [];
   let   tries  = 0;
   while (result.length < n && tries < n * 20) {
@@ -38,6 +65,7 @@ function generateNumbers(n, existingNums) {
   return result.length === n ? result : null;
 }
 
+/* ── Handler ──────────────────────────────────────────────── */
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -50,66 +78,41 @@ module.exports = async function handler(req, res) {
   try { body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body; }
   catch { return res.status(400).json({ error: 'invalid_json' }); }
 
-  const {
-    nome       = '',
-    social     = '',
-    email      = '',
-    telefone   = '',
-    modalidade = 'fly',
-    quantidade = '1',
-  } = body;
+  const { nome = '', social = '', email = '', telefone = '', modalidade = 'fly', quantidade = '1' } = body;
 
   const errors = validate({ nome, social, email, telefone, quantidade });
   if (errors.length) return res.status(400).json({ error: 'validation_error', details: errors });
 
   const cleanEmail = email.trim().toLowerCase();
-  const supabase   = getSupabase();
 
-  // ── Checar email duplicado ─────────────────────────────
-  const { data: existing, error: checkError } = await supabase
-    .from('participantes')
-    .select('id')
-    .eq('email', cleanEmail)
-    .maybeSingle();
+  try {
+    // ── Checar email duplicado ───────────────────────────
+    const existing = await dbSelect('participantes', `email=eq.${encodeURIComponent(cleanEmail)}&select=id`);
+    if (existing.length > 0) return res.status(409).json({ error: 'duplicate_email' });
 
-  if (checkError) {
-    console.error('Check error:', checkError);
-    return res.status(500).json({ error: 'db_error', message: checkError.message });
+    // ── Buscar números já usados ─────────────────────────
+    const allRows  = await dbSelect('participantes', 'select=numeros');
+    const usedNums = allRows.flatMap((r) => r.numeros || []);
+
+    const qtd     = Math.max(1, Math.min(20, parseInt(quantidade) || 1));
+    const numeros = generateNumbers(qtd, usedNums);
+    if (!numeros) return res.status(500).json({ error: 'server_error' });
+
+    // ── Inserir participante ─────────────────────────────
+    await dbInsert('participantes', {
+      nome:       nome.trim(),
+      social:     social.trim(),
+      email:      cleanEmail,
+      telefone:   telefone.trim(),
+      modalidade,
+      quantidade: qtd,
+      numeros,
+    });
+
+    return res.status(200).json({ success: true, numeros });
+
+  } catch (err) {
+    console.error('API error:', err.message);
+    return res.status(500).json({ error: 'server_error', message: err.message });
   }
-
-  if (existing) return res.status(409).json({ error: 'duplicate_email' });
-
-  // ── Buscar números já usados ───────────────────────────
-  const { data: allRows, error: fetchError } = await supabase
-    .from('participantes')
-    .select('numeros');
-
-  if (fetchError) {
-    console.error('Fetch error:', fetchError);
-    return res.status(500).json({ error: 'db_error', message: fetchError.message });
-  }
-
-  const usedNums = (allRows || []).flatMap((r) => r.numeros || []);
-  const qtd      = Math.max(1, Math.min(20, parseInt(quantidade) || 1));
-  const numeros  = generateNumbers(qtd, usedNums);
-
-  if (!numeros) return res.status(500).json({ error: 'server_error', message: 'Não foi possível gerar números únicos.' });
-
-  // ── Inserir participante ───────────────────────────────
-  const { error: insertError } = await supabase.from('participantes').insert({
-    nome:       nome.trim(),
-    social:     social.trim(),
-    email:      cleanEmail,
-    telefone:   telefone.trim(),
-    modalidade,
-    quantidade: qtd,
-    numeros,
-  });
-
-  if (insertError) {
-    console.error('Insert error:', insertError);
-    return res.status(500).json({ error: 'db_error', message: insertError.message });
-  }
-
-  return res.status(200).json({ success: true, numeros });
 };
