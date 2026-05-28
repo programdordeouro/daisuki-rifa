@@ -841,9 +841,9 @@
 
 .option-cards {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(1rem, 2.5vw, 1.8rem);
-  max-width: 680px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.8rem, 2vw, 1.4rem);
+  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -1843,7 +1843,7 @@
   .timeline-item { flex-direction: row; text-align: left; }
 }
 
-@media (max-width: 540px) {
+@media (max-width: 720px) {
   .option-cards { grid-template-columns: 1fr; }
 }
 

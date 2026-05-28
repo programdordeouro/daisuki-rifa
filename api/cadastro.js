@@ -79,6 +79,8 @@ module.exports = async function handler(req, res) {
   catch { return res.status(400).json({ error: 'invalid_json' }); }
 
   const { nome = '', social = '', email = '', telefone = '', modalidade = 'fly', quantidade = '1' } = body;
+  const modalidadesValidas = ['fly', 'social', 'compra'];
+  const modalidadeFinal = modalidadesValidas.includes(modalidade) ? modalidade : 'fly';
 
   const errors = validate({ nome, social, email, telefone, quantidade });
   if (errors.length) return res.status(400).json({ error: 'validation_error', details: errors });
@@ -117,7 +119,7 @@ module.exports = async function handler(req, res) {
       social:     social.trim(),
       email:      cleanEmail,
       telefone:   telefone.trim(),
-      modalidade,
+      modalidade: modalidadeFinal,
       quantidade: qtd,
       numeros,
     });

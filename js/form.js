@@ -11,6 +11,7 @@
   const stepChoose = document.getElementById('rifa-step-choose');
   const stepForm   = document.getElementById('rifa-step-form');
   const btnFly     = document.getElementById('btn-option-fly');
+  const btnSocial  = document.getElementById('btn-option-social');
   const btnCompra  = document.getElementById('btn-option-compra');
   const btnBack    = document.getElementById('form-back-btn');
   const form       = document.getElementById('rifa-form');
@@ -43,16 +44,24 @@
   /* ── Mode switch ───────────────────────────────────────── */
   function showForm(selectedMode) {
     mode = selectedMode;
-    const isFly = mode === 'fly';
+    const isCompra = mode === 'compra';
 
-    if (modeTag)   modeTag.textContent   = isFly ? 'Fly' : 'Compra';
-    if (formTitle) formTitle.textContent  = isFly ? 'Participar — Fly' : 'Participar — Compra';
-    if (infoText)  infoText.textContent   = isFly
-      ? 'Preencha seus dados e garanta sua participação! Você receberá 1 número exclusivo gratuitamente.'
-      : 'Preencha seus dados. Após confirmar, entre em contato pelo Instagram para efetuar o pagamento.';
+    const labels = {
+      fly:    { tag: 'Flyer',        title: 'Participar — Flyer',        btn: 'Garantir meu número' },
+      social: { tag: 'Redes Sociais', title: 'Participar — Redes Sociais', btn: 'Garantir meu número' },
+      compra: { tag: 'Compra',        title: 'Participar — Compra',        btn: 'Reservar bilhetes'   },
+    };
+    const l = labels[mode] || labels.fly;
 
-    if (btnText) btnText.textContent = isFly ? 'Garantir meu número' : 'Reservar bilhetes';
-    if (qtyGroup) qtyGroup.hidden = isFly;
+    if (modeTag)   modeTag.textContent  = l.tag;
+    if (formTitle) formTitle.textContent = l.title;
+    if (btnText)   btnText.textContent  = l.btn;
+
+    if (infoText) infoText.textContent = isCompra
+      ? 'Preencha seus dados. Após confirmar, entre em contato pelo Instagram para efetuar o pagamento.'
+      : 'Preencha seus dados e garanta sua participação! Você receberá 1 número exclusivo gratuitamente.';
+
+    if (qtyGroup) qtyGroup.hidden = !isCompra;
 
     if (stepChoose) stepChoose.hidden = true;
     if (stepForm)   stepForm.hidden   = false;
@@ -63,6 +72,7 @@
   }
 
   btnFly?.addEventListener('click',    () => showForm('fly'));
+  btnSocial?.addEventListener('click', () => showForm('social'));
   btnCompra?.addEventListener('click', () => showForm('compra'));
 
   btnBack?.addEventListener('click', () => {
