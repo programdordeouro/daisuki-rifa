@@ -244,6 +244,14 @@
       margin-top: 0.4rem;
     }
 
+    .cd-participant-name {
+      font-family: var(--font-display);
+      font-size: 1.1rem; font-weight: 300;
+      color: var(--chocolate);
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.01em;
+    }
+
     .cd-tickets-label {
       display: block;
       font-family: var(--font-body); font-size: 0.5rem;
@@ -286,7 +294,7 @@
     <div class="cd-login-card">
       <h2 class="cd-login-title">Ver meus números</h2>
       <p class="cd-login-sub">
-        Digite seu e-mail para receber um link de acesso<br>e ver seus bilhetes da rifa.
+        Digite o e-mail usado no cadastro<br>para ver seus bilhetes da rifa.
       </p>
       <input
         type="email"
@@ -296,7 +304,7 @@
         autocomplete="email"
       >
       <button class="cd-login-btn" id="cd-login-btn">
-        Enviar link de acesso
+        Ver meus números
       </button>
       <p class="cd-login-msg" id="cd-login-msg" aria-live="polite"></p>
     </div>
@@ -347,13 +355,13 @@
     </div>
 
     <div class="cd-tickets" id="cd-tickets-section" hidden>
+      <p class="cd-participant-name" id="cd-participant-name" hidden></p>
       <span class="cd-tickets-label">seus números</span>
       <ul class="cd-tickets-list" id="cd-tickets-list"></ul>
     </div>
 
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="js/countdown.js"></script>
 </body>

@@ -1,119 +1,88 @@
 /* ============================================================
    COUNTDOWN.JS — Daisuki Confeitaria
-   Supabase auth · Brigadeiro 3D · Countdown
+   Consulta por email · Brigadeiro 3D · Countdown
    ============================================================ */
 
 'use strict';
 
-/* ── Supabase auth + exibição de números ──────────────────── */
-(function initAuth() {
-  const SUPABASE_URL  = 'https://xcrwjlbvpipfssepgxpv.supabase.co';
-  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjcndqbGJ2cGlwZnNzZXBneHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4Nzc1MjUsImV4cCI6MjA5NTQ1MzUyNX0.FXpEulvkCQzc8rxtyTGU3Y9yg9f2teh-V11qZcCa-I8';
+/* ── Consulta de números por email ────────────────────────── */
+(function initConsulta() {
+  const overlay    = document.getElementById('cd-login-overlay');
+  const emailInput = document.getElementById('cd-login-email');
+  const btn        = document.getElementById('cd-login-btn');
+  const msgEl      = document.getElementById('cd-login-msg');
+  const numsLabel  = document.getElementById('cd-nums-label');
 
-  if (!window.supabase) return;
-
-  const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
-  const numsLabel    = document.getElementById('cd-nums-label');
-  const loginOverlay = document.getElementById('cd-login-overlay');
-  const loginEmail   = document.getElementById('cd-login-email');
-  const loginBtn     = document.getElementById('cd-login-btn');
-  const loginMsg     = document.getElementById('cd-login-msg');
-
-  /* Números passados via URL (recém cadastrado via localStorage fallback) */
+  /* Números passados via URL (recém cadastrado) */
   const urlParams = new URLSearchParams(window.location.search);
   const urlNums   = urlParams.get('numeros') || urlParams.get('numero') || '';
 
-  /* Se veio com URL params, esconde o overlay imediatamente */
-  if (urlNums && loginOverlay) loginOverlay.hidden = true;
-
-  /* Mostrar números no label do topo e na seção destacada */
-  function showNums(numeros) {
-    if (!numeros?.length) return;
-
+  function showParticipante(nome, numeros) {
     if (numsLabel) numsLabel.textContent = numeros.join(' · ');
 
     const section = document.getElementById('cd-tickets-section');
     const list    = document.getElementById('cd-tickets-list');
+    const nameEl  = document.getElementById('cd-participant-name');
+
+    if (nameEl) { nameEl.textContent = nome; nameEl.hidden = false; }
+
     if (section && list) {
-      list.innerHTML = numeros
-        .map((n) => `<li class="cd-ticket-num">${n}</li>`)
-        .join('');
+      list.innerHTML = numeros.map((n) => `<li class="cd-ticket-num">${n}</li>`).join('');
       section.hidden = false;
     }
+
+    if (overlay) overlay.hidden = true;
   }
 
-  /* Buscar números do participante logado (por email) */
-  async function fetchNumerosDoUsuario(email) {
-    const { data, error } = await supa
-      .from('participantes')
-      .select('numeros')
-      .eq('email', email.toLowerCase())
-      .maybeSingle();
-
-    if (!error && data?.numeros?.length) {
-      showNums(data.numeros);
-      if (window.location.hash) history.replaceState(null, '', window.location.pathname);
-    }
-  }
-
-  let ticketsAlreadyShown = false;
-
-  /* INITIAL_SESSION dispara após o Supabase processar o hash do magic link */
-  supa.auth.onAuthStateChange((event, session) => {
-    if (event === 'INITIAL_SESSION') {
-      if (session?.user) {
-        if (loginOverlay) loginOverlay.hidden = true;
-        if (!urlNums && !ticketsAlreadyShown) fetchNumerosDoUsuario(session.user.email);
-      } else if (!urlNums) {
-        /* Sem sessão e sem URL params → pede login */
-        if (loginOverlay) loginOverlay.hidden = false;
-      }
-    } else if (event === 'SIGNED_IN' && session?.user) {
-      if (loginOverlay) loginOverlay.hidden = true;
-      if (!ticketsAlreadyShown) fetchNumerosDoUsuario(session.user.email);
-    }
-  });
-
-  /* Se veio com URL params, mostra imediatamente */
+  /* Se veio com URL params, esconde overlay e mostra números */
   if (urlNums) {
-    ticketsAlreadyShown = true;
+    if (overlay) overlay.hidden = true;
     const nums = decodeURIComponent(urlNums).split(',').map((s) => s.trim()).filter(Boolean);
-    showNums(nums);
+    /* nome ainda não disponível via URL — busca pelo email se possível, senão mostra só números */
+    showParticipante('', nums);
+  } else {
+    if (overlay) overlay.hidden = false;
   }
 
-  /* ── Formulário "ver meus números" ──────────────────────── */
-  if (loginBtn) {
-    loginBtn.addEventListener('click', async () => {
-      const email = loginEmail?.value?.trim();
+  /* Busca pelo email no servidor */
+  async function buscarPorEmail(email) {
+    const res  = await fetch(`/api/consulta?email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  if (btn) {
+    btn.addEventListener('click', async () => {
+      const email = emailInput?.value?.trim();
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        if (loginMsg) loginMsg.textContent = 'Digite um e-mail válido.';
+        if (msgEl) msgEl.textContent = 'Digite um e-mail válido.';
         return;
       }
 
-      loginBtn.disabled    = true;
-      loginBtn.textContent = 'Enviando...';
-      if (loginMsg) loginMsg.textContent = '';
+      btn.disabled    = true;
+      btn.textContent = 'Buscando...';
+      if (msgEl) msgEl.textContent = '';
 
-      const { error } = await supa.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: `${window.location.origin}/countdown.html` },
-      });
+      try {
+        const { ok, status, data } = await buscarPorEmail(email);
 
-      if (error) {
-        if (loginMsg) loginMsg.textContent = `Erro: ${error.message}`;
-      } else {
-        if (loginMsg) loginMsg.textContent = '✓ Link enviado! Verifique seu e-mail.';
-        if (loginEmail) loginEmail.value = '';
+        if (ok && data.nome) {
+          showParticipante(data.nome, data.numeros || []);
+        } else if (status === 404) {
+          if (msgEl) msgEl.textContent = 'E-mail não encontrado. Verifique se é o mesmo usado no cadastro.';
+        } else {
+          if (msgEl) msgEl.textContent = 'Erro ao buscar. Tente novamente.';
+        }
+      } catch {
+        if (msgEl) msgEl.textContent = 'Erro de conexão. Tente novamente.';
       }
 
-      loginBtn.disabled    = false;
-      loginBtn.textContent = 'Enviar link de acesso';
+      btn.disabled    = false;
+      btn.textContent = 'Ver meus números';
     });
 
-    /* Enviar com Enter */
-    loginEmail?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') loginBtn.click();
+    emailInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') btn.click();
     });
   }
 })();
