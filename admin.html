@@ -3,232 +3,336 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex, nofollow">
-  <title>Daisuki Admin — Painel de Controle</title>
-
+  <title>Daisuki — Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/pages.css">
-
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    body { cursor: auto; background: var(--cream-dark); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .admin-stats {
-      display: flex;
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
+    :root {
+      --chocolate: #2C1810;
+      --rose:      #C17B72;
+      --cream:     #FAF6F1;
+      --mid:       #7A5C52;
+      --border:    rgba(44,24,16,0.1);
     }
 
-    .admin-stat-card {
-      background: var(--white-warm);
-      border-radius: var(--radius-md);
-      padding: 1.5rem 2rem;
-      box-shadow: var(--shadow-soft);
-      min-width: 160px;
-    }
+    body { font-family: 'Jost', sans-serif; background: var(--cream); color: var(--chocolate); min-height: 100vh; }
 
-    .admin-stat-label {
-      font-family: var(--font-body);
-      font-size: 0.62rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--rose);
-      margin-bottom: 0.5rem;
-      display: block;
-    }
+    /* Login */
+    #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
 
-    .admin-stat-value {
-      font-family: var(--font-display);
-      font-size: 2.2rem;
-      font-weight: 400;
-      color: var(--chocolate);
-      line-height: 1;
+    .login-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 16px;
+      padding: 2.5rem 2rem; width: 100%; max-width: 360px;
+      box-shadow: 0 8px 40px rgba(44,24,16,0.08); text-align: center;
     }
+    .login-card h1 { font-size: 1.1rem; font-weight: 500; margin-bottom: 0.3rem; }
+    .login-card p  { font-size: 0.78rem; color: var(--mid); margin-bottom: 1.5rem; }
 
-    .admin-winner-section {
-      background: var(--white-warm);
-      border-radius: var(--radius-md);
-      padding: 1.8rem;
-      box-shadow: var(--shadow-soft);
-      margin-bottom: 2rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
+    .field {
+      width: 100%; padding: 0.75rem 1rem;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Jost', sans-serif; font-size: 0.9rem; color: var(--chocolate);
+      background: var(--cream); margin-bottom: 0.9rem;
     }
+    .field:focus { outline: none; border-color: var(--rose); }
 
-    .admin-winner-section h3 {
-      font-family: var(--font-body);
-      font-size: 0.72rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--chocolate-mid);
-      flex: 1 1 100%;
-      margin-bottom: 0.75rem;
+    .btn {
+      width: 100%; padding: 0.8em 1em;
+      background: var(--rose); color: #fff; border: none; border-radius: 8px;
+      font-family: 'Jost', sans-serif; font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s;
     }
+    .btn:hover:not(:disabled) { opacity: 0.85; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--rose); color: var(--rose); }
+    .btn-danger  { background: #c0392b; }
 
-    #winner-input {
-      font-family: var(--font-display);
-      font-size: 1.2rem;
-      padding: 0.6rem 1.2rem;
-      border: 1.5px solid rgba(44,24,16,0.15);
-      border-radius: var(--radius-sm);
-      color: var(--chocolate);
-      background: var(--cream);
-      letter-spacing: 0.05em;
-      min-width: 200px;
+    #login-error { color: #c0392b; font-size: 0.78rem; margin-top: 0.7rem; min-height: 1em; }
+
+    /* Dashboard */
+    #dashboard { display: none; }
+
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem; background: #fff; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 10;
     }
+    .topbar h1 { font-size: 0.9rem; font-weight: 500; letter-spacing: 1px; }
+    .topbar-actions { display: flex; gap: 0.75rem; }
+    .topbar-actions .btn { width: auto; padding: 0.55em 1.2em; font-size: 0.7rem; }
 
-    #winner-input:focus {
-      border-color: var(--rose);
-      outline: none;
+    .main { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
+
+    /* Stats */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1rem; text-align: center; }
+    .stat-val { font-size: 2rem; font-weight: 300; color: var(--rose); line-height: 1; }
+    .stat-lbl { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--mid); margin-top: 0.3rem; }
+
+    /* Winner */
+    #winner-banner {
+      display: none; background: linear-gradient(135deg, #2C1810, #5C3020); color: #FAF6F1;
+      border-radius: 12px; padding: 1.2rem 1.5rem; margin-bottom: 1.5rem;
+      align-items: center; gap: 1rem;
     }
+    #winner-banner.visible { display: flex; }
+    .winner-icon { font-size: 2rem; }
+    .winner-info strong { display: block; font-size: 1rem; font-weight: 500; }
+    .winner-info span   { font-size: 0.78rem; opacity: 0.7; }
 
-    .admin-section-title {
-      font-family: var(--font-body);
-      font-size: 0.68rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--chocolate-mid);
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+    /* Table */
+    .table-wrap { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .table-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
     }
+    .table-header h2 { font-size: 0.78rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--mid); }
 
-    .admin-section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: rgba(44,24,16,0.1);
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th {
+      text-align: left; padding: 0.65rem 1rem;
+      font-size: 0.6rem; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--mid); border-bottom: 1px solid var(--border); white-space: nowrap;
     }
+    td { padding: 0.75rem 1rem; border-bottom: 1px solid rgba(44,24,16,0.05); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(44,24,16,0.02); }
 
-    .admin-table-wrapper {
-      overflow-x: auto;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-soft);
+    .badge { display: inline-block; padding: 0.2em 0.65em; border-radius: 20px; font-size: 0.65rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+    .badge-fly    { background: rgba(193,123,114,0.15); color: var(--rose); }
+    .badge-compra { background: rgba(44,24,16,0.08); color: var(--chocolate); }
+
+    .numeros-cell { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .num-pill { background: rgba(44,24,16,0.06); border-radius: 4px; padding: 0.15em 0.5em; font-size: 0.7rem; font-weight: 500; white-space: nowrap; }
+
+    .empty { padding: 3rem; text-align: center; color: var(--mid); font-size: 0.85rem; }
+
+    /* Modal */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(44,24,16,0.5); z-index: 100;
+      align-items: center; justify-content: center; padding: 1rem;
     }
+    #modal-overlay.open { display: flex; }
 
-    .btn-admin {
-      font-family: var(--font-body);
-      font-size: 0.7rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 0.7em 1.6em;
-      border-radius: var(--radius-pill);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
+    .modal { background: #fff; border-radius: 16px; padding: 2rem; max-width: 420px; width: 100%; text-align: center; }
+    .modal h2 { font-size: 1.1rem; font-weight: 500; margin-bottom: 0.5rem; }
+    .modal p  { font-size: 0.82rem; color: var(--mid); margin-bottom: 1.5rem; line-height: 1.5; }
+    .modal-actions { display: flex; gap: 0.75rem; }
+    .modal-actions .btn { width: auto; flex: 1; }
 
-    .btn-admin-rose {
-      background: var(--rose);
-      color: var(--white-warm);
-      border: none;
-    }
+    #sorteio-result { display: none; background: var(--cream); border-radius: 10px; padding: 1.2rem; margin-bottom: 1.2rem; }
+    #sorteio-result .res-num  { font-size: 1.5rem; font-weight: 500; color: var(--rose); }
+    #sorteio-result .res-nome { font-size: 0.85rem; color: var(--mid); margin-top: 0.3rem; }
 
-    .btn-admin-rose:hover {
-      background: var(--rose-dark);
-    }
-
-    .btn-admin-outline {
-      background: transparent;
-      color: var(--chocolate-mid);
-      border: 1.5px solid rgba(44,24,16,0.2);
-    }
-
-    .btn-admin-outline:hover {
-      border-color: var(--rose);
-      color: var(--rose);
-    }
-
-    #winner-msg {
-      font-family: var(--font-body);
-      font-size: 0.8rem;
-      color: var(--rose);
-      margin-top: 0.5rem;
-    }
-
-    .admin-empty {
-      padding: 3rem;
-      text-align: center;
-      color: var(--chocolate-mid);
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      opacity: 0.6;
+    @media (max-width: 640px) {
+      th:nth-child(4), td:nth-child(4) { display: none; }
     }
   </style>
 </head>
-<body class="admin-page">
+<body>
 
-  <header class="admin-header">
-    <h1 class="admin-title">Daisuki · Painel Admin</h1>
-    <a href="/" class="btn-admin btn-admin-outline">← Voltar ao site</a>
-  </header>
+<div id="login-screen">
+  <div class="login-card">
+    <h1>Daisuki · Admin</h1>
+    <p>Acesso restrito à administração da rifa</p>
+    <input type="password" id="admin-pwd" class="field" placeholder="Senha de acesso" autocomplete="current-password">
+    <button class="btn" id="login-btn">Entrar</button>
+    <p id="login-error"></p>
+  </div>
+</div>
 
-  <div class="admin-body">
-
-    <!-- Stats -->
-    <div class="admin-stats">
-      <div class="admin-stat-card">
-        <span class="admin-stat-label">Total de Participantes</span>
-        <div class="admin-stat-value" id="admin-total">—</div>
-      </div>
-      <div class="admin-stat-card">
-        <span class="admin-stat-label">Data do Sorteio</span>
-        <div class="admin-stat-value" style="font-size:1.4rem">15/06/2026</div>
-      </div>
+<div id="dashboard">
+  <div class="topbar">
+    <h1>Daisuki · Admin</h1>
+    <div class="topbar-actions">
+      <button class="btn btn-outline" id="refresh-btn">↻ Atualizar</button>
+      <button class="btn" id="sortear-btn">🎉 Realizar sorteio</button>
     </div>
-
-    <!-- Set winner -->
-    <div class="admin-winner-section">
-      <h3>Definir número vencedor</h3>
-      <input type="text" id="winner-input" placeholder="DAISUKI-XXXX" autocomplete="off">
-      <button class="btn-admin btn-admin-rose" id="set-winner-btn">
-        Definir Ganhador
-      </button>
-      <button class="btn-admin btn-admin-outline" onclick="window.open('/resultado.html','_blank')">
-        Ver resultado público
-      </button>
-      <p id="winner-msg"></p>
-    </div>
-
-    <!-- Participants table -->
-    <div class="admin-section-title">
-      Participantes
-      <button class="btn-admin btn-admin-outline" id="refresh-btn" style="margin-left:auto;margin-right:0">
-        ↻ Atualizar
-      </button>
-    </div>
-
-    <div class="admin-table-wrapper">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>E-mail</th>
-            <th>WhatsApp</th>
-            <th>Número</th>
-            <th>Qtd</th>
-            <th>Data/Hora</th>
-          </tr>
-        </thead>
-        <tbody id="admin-tbody">
-          <tr>
-            <td colspan="7">
-              <div class="admin-empty">Carregando participantes...</div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
   </div>
 
-  <script src="js/admin.js"></script>
+  <div class="main">
+    <div class="stats">
+      <div class="stat-card"><div class="stat-val" id="stat-total">—</div><div class="stat-lbl">Participantes</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-numeros">—</div><div class="stat-lbl">Números emitidos</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-fly">—</div><div class="stat-lbl">Modalidade Fly</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-compra">—</div><div class="stat-lbl">Modalidade Compra</div></div>
+    </div>
+
+    <div id="winner-banner">
+      <div class="winner-icon">🏆</div>
+      <div class="winner-info">
+        <strong id="winner-num"></strong>
+        <span id="winner-nome"></span>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-header"><h2>Participantes</h2></div>
+      <div id="table-container"><div class="empty">Carregando...</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-overlay">
+  <div class="modal">
+    <h2>Realizar Sorteio</h2>
+    <p>O sistema vai sortear aleatoriamente um número entre todos os bilhetes emitidos. O resultado será salvo e ficará visível para os participantes.</p>
+    <div id="sorteio-result">
+      <div class="res-num" id="res-num"></div>
+      <div class="res-nome" id="res-nome"></div>
+    </div>
+    <div class="modal-actions" id="modal-actions">
+      <button class="btn btn-outline" id="modal-cancel">Cancelar</button>
+      <button class="btn btn-danger" id="modal-confirm">Sortear agora</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let adminKey = sessionStorage.getItem('dk_admin') || '';
+
+  /* Login */
+  const loginScreen = document.getElementById('login-screen');
+  const dashboard   = document.getElementById('dashboard');
+
+  document.getElementById('login-btn').addEventListener('click', async () => {
+    const key = document.getElementById('admin-pwd').value.trim();
+    if (!key) return;
+    const btn = document.getElementById('login-btn');
+    btn.disabled = true; btn.textContent = 'Verificando...';
+    document.getElementById('login-error').textContent = '';
+
+    const res = await fetch('/api/admin/participantes', { headers: { 'x-admin-key': key } });
+    if (res.status !== 401) {
+      adminKey = key;
+      sessionStorage.setItem('dk_admin', key);
+      showDashboard();
+    } else {
+      document.getElementById('login-error').textContent = 'Senha incorreta.';
+      btn.disabled = false; btn.textContent = 'Entrar';
+    }
+  });
+  document.getElementById('admin-pwd').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('login-btn').click(); });
+
+  if (adminKey) showDashboard();
+
+  function showDashboard() {
+    loginScreen.style.display = 'none';
+    dashboard.style.display   = 'block';
+    loadData();
+  }
+
+  /* Dados */
+  async function loadData() {
+    document.getElementById('table-container').innerHTML = '<div class="empty">Carregando...</div>';
+
+    const [partRes, winnerRes] = await Promise.all([
+      fetch('/api/admin/participantes', { headers: { 'x-admin-key': adminKey } }),
+      fetch('/api/resultado'),
+    ]);
+
+    if (!partRes.ok) { document.getElementById('table-container').innerHTML = '<div class="empty">Erro ao carregar dados.</div>'; return; }
+
+    const participantes = await partRes.json();
+    renderStats(participantes);
+    renderTable(participantes);
+
+    if (winnerRes.ok) {
+      try {
+        const winner = await winnerRes.json();
+        if (winner?.numero_sorteado) renderWinner(winner);
+      } catch {}
+    }
+  }
+
+  function renderStats(data) {
+    document.getElementById('stat-total').textContent   = data.length;
+    document.getElementById('stat-numeros').textContent = data.reduce((s, p) => s + (p.numeros?.length || 0), 0);
+    document.getElementById('stat-fly').textContent     = data.filter((p) => p.modalidade === 'fly').length;
+    document.getElementById('stat-compra').textContent  = data.filter((p) => p.modalidade === 'compra').length;
+  }
+
+  function renderWinner(w) {
+    document.getElementById('winner-num').textContent  = w.numero_sorteado;
+    document.getElementById('winner-nome').textContent = w.nome_vencedor ? `Vencedor: ${w.nome_vencedor}` : '';
+    document.getElementById('winner-banner').classList.add('visible');
+  }
+
+  function renderTable(data) {
+    const container = document.getElementById('table-container');
+    if (!data.length) { container.innerHTML = '<div class="empty">Nenhum participante cadastrado ainda.</div>'; return; }
+
+    const rows = data.map((p) => {
+      const nums  = (p.numeros || []).map((n) => `<span class="num-pill">${n}</span>`).join('');
+      const dataCad = new Date(p.created_at).toLocaleString('pt-BR', {
+        timeZone: 'Asia/Tokyo', day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit'
+      });
+      return `<tr>
+        <td>${p.nome || '—'}</td>
+        <td>${p.email || '—'}</td>
+        <td>${p.telefone || '—'}</td>
+        <td>${p.social || '—'}</td>
+        <td><span class="badge badge-${p.modalidade}">${p.modalidade}</span></td>
+        <td><div class="numeros-cell">${nums || '—'}</div></td>
+        <td style="white-space:nowrap">${dataCad}</td>
+      </tr>`;
+    }).join('');
+
+    container.innerHTML = `<table>
+      <thead><tr>
+        <th>Nome</th><th>E-mail</th><th>Telefone</th><th>Rede Social</th>
+        <th>Modalidade</th><th>Números</th><th>Cadastro (JST)</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  document.getElementById('refresh-btn').addEventListener('click', loadData);
+
+  /* Sorteio */
+  const modalOverlay = document.getElementById('modal-overlay');
+
+  document.getElementById('sortear-btn').addEventListener('click', () => {
+    document.getElementById('sorteio-result').style.display = 'none';
+    document.getElementById('modal-actions').innerHTML = `
+      <button class="btn btn-outline" id="modal-cancel">Cancelar</button>
+      <button class="btn btn-danger" id="modal-confirm">Sortear agora</button>`;
+    bindModal();
+    modalOverlay.classList.add('open');
+  });
+
+  function bindModal() {
+    document.getElementById('modal-cancel').addEventListener('click', () => modalOverlay.classList.remove('open'));
+    document.getElementById('modal-confirm').addEventListener('click', async () => {
+      const confirmBtn = document.getElementById('modal-confirm');
+      confirmBtn.disabled = true; confirmBtn.textContent = 'Sorteando...';
+
+      const res  = await fetch('/api/admin/set-winner', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        document.getElementById('res-num').textContent   = data.numero_sorteado;
+        document.getElementById('res-nome').textContent  = data.nome_vencedor ? `Vencedor: ${data.nome_vencedor}` : '';
+        document.getElementById('sorteio-result').style.display = 'block';
+        document.getElementById('modal-actions').innerHTML = `<button class="btn" id="modal-close">Fechar</button>`;
+        document.getElementById('modal-close').addEventListener('click', () => {
+          modalOverlay.classList.remove('open');
+          renderWinner(data);
+        });
+      } else {
+        confirmBtn.disabled = false; confirmBtn.textContent = 'Sortear agora';
+        alert('Erro: ' + (data.error || 'desconhecido'));
+      }
+    });
+  }
+  bindModal();
+</script>
 </body>
 </html>
