@@ -982,6 +982,13 @@
   color: var(--rose);
 }
 
+.link-instagram {
+  color: var(--rose);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.link-instagram:hover { opacity: 0.75; }
+
 .social-check-desc {
   font-family: var(--font-body);
   font-size: 0.82rem;
