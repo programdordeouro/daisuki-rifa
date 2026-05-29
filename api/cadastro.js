@@ -135,7 +135,9 @@ module.exports = async function handler(req, res) {
 
     if (insertR.status !== 200 && insertR.status !== 201) {
       console.error('Insert error:', insertR.status, insertR.body);
-      return res.status(500).json({ error: 'db_error', detail: insertR.body });
+      let detail = insertR.body;
+      try { detail = JSON.parse(insertR.body); } catch {}
+      return res.status(500).json({ error: 'db_error', status: insertR.status, detail });
     }
 
     return res.status(200).json({ success: true, numeros });
