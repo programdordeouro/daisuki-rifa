@@ -130,6 +130,7 @@
   const stepperLabel = document.querySelector('.stepper-label');
   const hintEl       = document.querySelector('.stepper-hint');
   const qtyInput     = document.getElementById('f-quantidade');
+  const priceEl      = document.getElementById('stepper-price-val');
 
   function updateStepper(newQty, animate) {
     qty = Math.max(MIN_TICKETS, Math.min(MAX_TICKETS, newQty));
@@ -148,6 +149,15 @@
       hintEl.innerHTML = qty === 1
         ? 'Você receberá <strong style="color:var(--rose)">1</strong> número exclusivo.'
         : `Você receberá <strong style="color:var(--rose)">${qty}</strong> números exclusivos!`;
+    }
+
+    if (priceEl) {
+      if (animate) {
+        priceEl.classList.add('changing');
+        setTimeout(() => { priceEl.textContent = `¥${qty * 100}`; priceEl.classList.remove('changing'); }, 150);
+      } else {
+        priceEl.textContent = `¥${qty * 100}`;
+      }
     }
 
     if (qtyInput) qtyInput.value = qty;

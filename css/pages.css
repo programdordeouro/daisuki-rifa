@@ -137,6 +137,23 @@
   z-index: 0;
 }
 
+.hero-logo-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 1.2s ease;
+}
+
+.hero-logo-video.hero-video--done {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .hero-logo-overlay {
   position: absolute;
   bottom: clamp(3rem, 8vh, 6rem);
@@ -1479,6 +1496,39 @@
 }
 
 .stepper-hint strong { color: var(--rose); }
+
+.stepper-price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(193, 123, 114, 0.07);
+  border: 1px solid rgba(193, 123, 114, 0.22);
+  border-radius: var(--radius-sm);
+}
+
+.stepper-price-label {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--chocolate-mid);
+  opacity: 0.7;
+}
+
+.stepper-price-val {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--rose);
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s;
+}
+
+.stepper-price-val.changing {
+  opacity: 0;
+}
 
 .form-error-msg {
   display: none;

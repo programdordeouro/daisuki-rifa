@@ -41,7 +41,11 @@
          SECTION 0 — LOGO HERO
     ══════════════════════════════════════════════════════════ -->
     <section id="hero-logo" aria-label="Daisuki Confeitaria">
-      <img src="logo.jpg" alt="Daisuki Confeitaria" class="hero-logo-img">
+      <img src="logo.jpg" alt="Daisuki Confeitaria" class="hero-logo-img" id="hero-bg-img">
+      <video id="hero-video" class="hero-logo-video" autoplay muted playsinline preload="auto"
+             aria-hidden="true">
+        <source src="hf_20260529_134627_c7b0c9b2-f1ab-4481-a4b4-e3582f64867b.mp4" type="video/mp4">
+      </video>
       <div class="hero-logo-overlay">
         <span class="video-label">AÇÃO MIP 2026</span>
         <h1 class="video-headline">
@@ -211,6 +215,10 @@
                 <p class="stepper-hint" id="stepper-hint">
                   Você receberá <strong style="color:var(--rose)" id="hint-num">1</strong> número exclusivo.
                 </p>
+                <div class="stepper-price" id="stepper-price">
+                  <span class="stepper-price-label">Total</span>
+                  <span class="stepper-price-val" id="stepper-price-val">¥100</span>
+                </div>
               </div>
 
               <div class="form-info-box" id="form-info-box" role="note">
@@ -261,6 +269,19 @@
   <script src="js/core.js"></script>
   <script src="js/sakura.js"></script>
   <script src="js/form.js"></script>
+  <script>
+    (function() {
+      var vid = document.getElementById('hero-video');
+      if (!vid) return;
+      vid.addEventListener('ended', function() {
+        vid.classList.add('hero-video--done');
+      });
+      // fallback: se o vídeo não carregar, remove em 2s
+      vid.addEventListener('error', function() {
+        vid.classList.add('hero-video--done');
+      });
+    })();
+  </script>
 
 </body>
 </html>
