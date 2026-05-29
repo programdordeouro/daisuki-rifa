@@ -13,6 +13,7 @@
   const btnFly     = document.getElementById('btn-option-fly');
   const btnSocial  = document.getElementById('btn-option-social');
   const btnCompra  = document.getElementById('btn-option-compra');
+  const stepSocial = document.getElementById('rifa-step-social');
   const btnBack    = document.getElementById('form-back-btn');
   const form       = document.getElementById('rifa-form');
   const card       = document.getElementById('rifa-form-card');
@@ -72,8 +73,49 @@
   }
 
   btnFly?.addEventListener('click',    () => showForm('fly'));
-  btnSocial?.addEventListener('click', () => showForm('social'));
   btnCompra?.addEventListener('click', () => showForm('compra'));
+
+  /* Redes Sociais — abre etapa de verificação primeiro */
+  btnSocial?.addEventListener('click', () => {
+    if (stepChoose) stepChoose.hidden = true;
+    if (stepSocial) stepSocial.hidden = false;
+    document.getElementById('f-link-social').value = '';
+    document.getElementById('social-error-msg').textContent = '';
+  });
+
+  document.getElementById('social-back-btn')?.addEventListener('click', () => {
+    if (stepSocial) stepSocial.hidden = true;
+    if (stepChoose) stepChoose.hidden = false;
+  });
+
+  document.getElementById('social-check-btn')?.addEventListener('click', () => {
+    const linkInput = document.getElementById('f-link-social');
+    const errorEl   = document.getElementById('social-error-msg');
+    const link      = linkInput.value.trim();
+
+    errorEl.textContent = '';
+    errorEl.classList.remove('visible');
+
+    if (!link) {
+      errorEl.textContent = 'Cole o link do seu compartilhamento.';
+      errorEl.classList.add('visible');
+      return;
+    }
+
+    const isInstagram = /instagram\.com/i.test(link);
+    if (!isInstagram) {
+      errorEl.textContent = 'O link precisa ser do Instagram (instagram.com).';
+      errorEl.classList.add('visible');
+      linkInput.classList.add('error');
+      return;
+    }
+
+    linkInput.classList.remove('error');
+    if (stepSocial) stepSocial.hidden = true;
+    showForm('social');
+    /* guarda o link para enviar no payload */
+    form.dataset.linkCompartilhamento = link;
+  });
 
   btnBack?.addEventListener('click', () => {
     if (stepForm)   stepForm.hidden   = true;
@@ -299,9 +341,10 @@
       social:     fSocial.value.trim(),
       email:      fEmail.value.trim().toLowerCase(),
       telefone:   fTel.value.trim(),
-      cidade:          fCidade.value.trim(),
-      data_nascimento: fNascimento.value,
-      modalidade:      mode,
+      cidade:                fCidade.value.trim(),
+      data_nascimento:       fNascimento.value,
+      link_compartilhamento: mode === 'social' ? (form.dataset.linkCompartilhamento || '') : '',
+      modalidade:            mode,
       quantidade: String(mode === 'compra' ? qty : 1),
     };
 

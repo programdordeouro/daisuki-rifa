@@ -982,6 +982,25 @@
   color: var(--rose);
 }
 
+.social-check-desc {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 300;
+  color: var(--chocolate-mid);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.form-hint {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  color: var(--chocolate-mid);
+  opacity: 0.6;
+  margin-top: 0.35rem;
+}
+
 .form-mode-tag {
   display: inline-block;
   font-family: var(--font-body);

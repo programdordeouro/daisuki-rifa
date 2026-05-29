@@ -110,6 +110,35 @@
           </div>
         </div>
 
+        <!-- PASSO 1.5: verificação redes sociais -->
+        <div id="rifa-step-social" hidden>
+          <button class="form-back-btn" id="social-back-btn" type="button">← Voltar</button>
+          <div class="rifa-form-card glass-sweep" id="social-check-card">
+            <div class="form-header">
+              <div class="form-mode-tag">Redes Sociais</div>
+              <div class="form-title-wrapper">
+                <div class="form-gold-line"></div>
+                <h3 class="form-title">Confirmar compartilhamento</h3>
+                <div class="form-gold-line"></div>
+              </div>
+            </div>
+            <p class="social-check-desc">
+              Para ganhar seu número gratuito, compartilhe nossa publicação no Instagram e cole o link do compartilhamento abaixo.
+            </p>
+            <div class="form-group">
+              <label class="form-label" for="f-link-social">Link do compartilhamento *</label>
+              <input type="url" id="f-link-social" class="form-input"
+                     placeholder="https://www.instagram.com/...">
+              <span class="form-hint">Cole o link do post ou story que você compartilhou</span>
+            </div>
+            <div class="form-error-msg" id="social-error-msg" role="alert"></div>
+            <button type="button" class="btn btn-submit btn-shimmer" id="social-check-btn">
+              <span>Verificar e continuar</span>
+              <span class="btn-arrow">→</span>
+            </button>
+          </div>
+        </div>
+
         <!-- PASSO 2: formulário -->
         <div id="rifa-step-form" hidden>
 
