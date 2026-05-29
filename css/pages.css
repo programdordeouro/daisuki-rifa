@@ -899,6 +899,15 @@
   z-index: 1;
 }
 
+.option-flyer-img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 4px 16px rgba(44,24,16,0.18);
+}
+
 .option-icon {
   font-size: 2.2rem;
   line-height: 1;
