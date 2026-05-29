@@ -289,6 +289,7 @@
         <td>${p.email || '—'}</td>
         <td>${p.telefone || '—'}</td>
         <td>${p.cidade || '—'}</td>
+        <td>${p.data_nascimento || '—'}</td>
         <td>${p.social || '—'}</td>
         <td><span class="badge badge-${p.modalidade}">${p.modalidade}</span></td>
         <td><div class="numeros-cell">${nums || '—'}</div></td>
@@ -298,7 +299,7 @@
 
     container.innerHTML = `<table>
       <thead><tr>
-        <th>Nome</th><th>E-mail</th><th>Telefone</th><th>Cidade</th><th>Rede Social</th>
+        <th>Nome</th><th>E-mail</th><th>Telefone</th><th>Cidade</th><th>Nascimento</th><th>Rede Social</th>
         <th>Modalidade</th><th>Números</th><th>Cadastro (JST)</th>
       </tr></thead>
       <tbody>${rows}</tbody>

@@ -258,7 +258,8 @@
     const fSocial = document.getElementById('f-social');
     const fEmail  = document.getElementById('f-email');
     const fTel    = document.getElementById('f-telefone-jp');
-    const fCidade = document.getElementById('f-cidade');
+    const fCidade     = document.getElementById('f-cidade');
+    const fNascimento = document.getElementById('f-nascimento');
 
     let valid = true;
 
@@ -276,6 +277,9 @@
 
     if (!fCidade?.value.trim())
       { setErr(fCidade, true); valid = false; } else setErr(fCidade, false);
+
+    if (!fNascimento?.value)
+      { setErr(fNascimento, true); valid = false; } else setErr(fNascimento, false);
 
     if (mode === 'compra' && (qty < MIN_TICKETS || qty > MAX_TICKETS)) {
       showErr(`Escolha entre ${MIN_TICKETS} e ${MAX_TICKETS} bilhetes.`);
@@ -295,8 +299,9 @@
       social:     fSocial.value.trim(),
       email:      fEmail.value.trim().toLowerCase(),
       telefone:   fTel.value.trim(),
-      cidade:     fCidade.value.trim(),
-      modalidade: mode,
+      cidade:          fCidade.value.trim(),
+      data_nascimento: fNascimento.value,
+      modalidade:      mode,
       quantidade: String(mode === 'compra' ? qty : 1),
     };
 
