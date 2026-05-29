@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const { status, body } = await httpsGet(
-      `${SUPA_URL}/rest/v1/participantes?select=nome,email,telefone,social,cidade,modalidade,quantidade,numeros,created_at&order=created_at.asc`,
+      `${SUPA_URL}/rest/v1/ganhadores?select=numero_sorteado,nome_vencedor,data_sorteio,observacao&order=data_sorteio.desc`,
       hdrs
     );
     if (status !== 200) return res.status(500).json({ error: 'db_error' });

@@ -169,9 +169,14 @@
       </div>
     </div>
 
-    <div class="table-wrap">
+    <div class="table-wrap" style="margin-bottom:1.5rem">
       <div class="table-header"><h2>Participantes</h2></div>
       <div id="table-container"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-header"><h2>Histórico de Ganhadores</h2></div>
+      <div id="ganhadores-container"><div class="empty">Carregando...</div></div>
     </div>
   </div>
 </div>
@@ -228,10 +233,12 @@
   /* Dados */
   async function loadData() {
     document.getElementById('table-container').innerHTML = '<div class="empty">Carregando...</div>';
+    document.getElementById('ganhadores-container').innerHTML = '<div class="empty">Carregando...</div>';
 
-    const [partRes, winnerRes] = await Promise.all([
+    const [partRes, winnerRes, ganhadoresRes] = await Promise.all([
       fetch('/api/admin/participantes', { headers: { 'x-admin-key': adminKey } }),
       fetch('/api/resultado'),
+      fetch('/api/admin/ganhadores', { headers: { 'x-admin-key': adminKey } }),
     ]);
 
     if (!partRes.ok) { document.getElementById('table-container').innerHTML = '<div class="empty">Erro ao carregar dados.</div>'; return; }
@@ -244,6 +251,13 @@
       try {
         const winner = await winnerRes.json();
         if (winner?.numero_sorteado) renderWinner(winner);
+      } catch {}
+    }
+
+    if (ganhadoresRes.ok) {
+      try {
+        const ganhadores = await ganhadoresRes.json();
+        renderGanhadores(ganhadores);
       } catch {}
     }
   }
@@ -274,6 +288,7 @@
         <td>${p.nome || '—'}</td>
         <td>${p.email || '—'}</td>
         <td>${p.telefone || '—'}</td>
+        <td>${p.cidade || '—'}</td>
         <td>${p.social || '—'}</td>
         <td><span class="badge badge-${p.modalidade}">${p.modalidade}</span></td>
         <td><div class="numeros-cell">${nums || '—'}</div></td>
@@ -283,9 +298,31 @@
 
     container.innerHTML = `<table>
       <thead><tr>
-        <th>Nome</th><th>E-mail</th><th>Telefone</th><th>Rede Social</th>
+        <th>Nome</th><th>E-mail</th><th>Telefone</th><th>Cidade</th><th>Rede Social</th>
         <th>Modalidade</th><th>Números</th><th>Cadastro (JST)</th>
       </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  function renderGanhadores(data) {
+    const container = document.getElementById('ganhadores-container');
+    if (!data.length) { container.innerHTML = '<div class="empty">Nenhum sorteio realizado ainda.</div>'; return; }
+
+    const rows = data.map((g) => {
+      const dataS = new Date(g.data_sorteio).toLocaleString('pt-BR', {
+        timeZone: 'Asia/Tokyo', day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit'
+      });
+      return `<tr>
+        <td><strong style="color:var(--rose)">${g.numero_sorteado}</strong></td>
+        <td>${g.nome_vencedor || '—'}</td>
+        <td style="white-space:nowrap">${dataS}</td>
+        <td>${g.observacao || '—'}</td>
+      </tr>`;
+    }).join('');
+
+    container.innerHTML = `<table>
+      <thead><tr><th>Número Sorteado</th><th>Vencedor</th><th>Data (JST)</th><th>Observação</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
   }

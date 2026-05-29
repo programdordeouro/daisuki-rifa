@@ -12,6 +12,10 @@
       "dest": "/api/admin/set-winner.js"
     },
     {
+      "src": "/api/admin/ganhadores",
+      "dest": "/api/admin/ganhadores.js"
+    },
+    {
       "src": "/api/resultado",
       "dest": "/api/resultado.js"
     },

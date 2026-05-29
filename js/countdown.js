@@ -218,7 +218,7 @@
 
 /* ── Countdown ────────────────────────────────────────────── */
 (function initCountdown() {
-  const RAFFLE_DATE = new Date('2026-06-15T11:00:00.000Z');
+  const RAFFLE_DATE = new Date('2026-06-01T09:00:00.000Z'); /* 18h00 JST */
 
   const D = document.getElementById('cd-days');
   const H = document.getElementById('cd-hours');

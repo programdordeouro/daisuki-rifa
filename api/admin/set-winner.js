@@ -66,24 +66,40 @@ module.exports = async function handler(req, res) {
       nomeVencedor    = sorteado.nome;
     }
 
-    /* Salva resultado (upsert na linha id=1) */
-    const payload = JSON.stringify({
+    const agora = new Date().toISOString();
+
+    /* Salva resultado atual (upsert na linha id=1) */
+    const payloadResultado = JSON.stringify({
       id: 1,
       numero_sorteado: numeroSorteado,
       nome_vencedor:   nomeVencedor,
-      data_sorteio:    new Date().toISOString().slice(0, 10),
+      data_sorteio:    agora.slice(0, 10),
     });
 
     const { status: uStatus } = await httpsReq(
       `${base}/resultado`,
       'POST',
       { ...hdrs, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-      payload
+      payloadResultado
     );
 
     if (uStatus !== 200 && uStatus !== 201) {
       return res.status(500).json({ error: 'db_error' });
     }
+
+    /* Grava no histórico de ganhadores */
+    const payloadGanhador = JSON.stringify({
+      numero_sorteado: numeroSorteado,
+      nome_vencedor:   nomeVencedor,
+      data_sorteio:    agora,
+    });
+
+    await httpsReq(
+      `${base}/ganhadores`,
+      'POST',
+      { ...hdrs, 'Prefer': 'return=minimal' },
+      payloadGanhador
+    );
 
     return res.status(200).json({ success: true, numero_sorteado: numeroSorteado, nome_vencedor: nomeVencedor });
   } catch (err) {

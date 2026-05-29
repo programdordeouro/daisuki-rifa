@@ -79,17 +79,22 @@
 
 .nav-link-nums {
   font-family: var(--font-body);
-  font-size: 0.6rem;
-  font-weight: 400;
-  letter-spacing: 2px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
-  color: var(--chocolate-mid);
+  color: var(--rose);
   text-decoration: none;
-  opacity: 0.55;
-  transition: opacity 0.3s;
+  border: 1.5px solid var(--rose);
+  border-radius: 50px;
+  padding: 0.5em 1.2em;
+  transition: background 0.25s, color 0.25s;
   white-space: nowrap;
 }
-.nav-link-nums:hover { opacity: 1; color: var(--rose); }
+.nav-link-nums:hover {
+  background: var(--rose);
+  color: #fff;
+}
 
 .nav-cta { flex-shrink: 0; }
 
