@@ -271,14 +271,25 @@
   <script src="js/form.js"></script>
   <script>
     (function() {
+      // Ajuste este valor para o segundo em que os brilhos acabam no vídeo
+      var LOOP_FROM = 3.5;
+
       var vid = document.getElementById('hero-video');
       if (!vid) return;
+
+      var looping = false;
+
       vid.addEventListener('ended', function() {
-        vid.classList.add('hero-video--done');
+        if (!looping) {
+          // Primeira vez: marca que entrou no loop
+          looping = true;
+        }
+        vid.currentTime = LOOP_FROM;
+        vid.play();
       });
-      // fallback: se o vídeo não carregar, remove em 2s
+
       vid.addEventListener('error', function() {
-        vid.classList.add('hero-video--done');
+        vid.style.display = 'none';
       });
     })();
   </script>

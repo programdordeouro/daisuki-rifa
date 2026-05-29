@@ -149,10 +149,6 @@
   transition: opacity 1.2s ease;
 }
 
-.hero-logo-video.hero-video--done {
-  opacity: 0;
-  pointer-events: none;
-}
 
 .hero-logo-overlay {
   position: absolute;
