@@ -38,41 +38,25 @@
   <main>
 
     <!-- ═══════════════════════════════════════════════════════
-         SECTION 0 — VIDEO SCROLL HERO
+         SECTION 0 — LOGO HERO
     ══════════════════════════════════════════════════════════ -->
-    <div id="video-scroll-container" aria-label="Vídeo de apresentação">
-      <div class="video-sticky-wrapper">
-
-        <video
-          id="hero-video"
-          muted
-          playsinline
-          preload="auto"
-          aria-hidden="true"
-          disablePictureInPicture>
-          <source src="hf_20260527_071634_36ab42fc-23b7-466c-8780-fb6cdc8bfe8f.mp4" type="video/mp4">
-        </video>
-
-        <div class="video-dark-overlay" aria-hidden="true"></div>
-
-        <div class="video-overlay-text" id="video-overlay-text">
-          <span class="video-label" data-splitting>AÇÃO MIP 2026</span>
-          <h1 class="video-headline">
-            <span data-splitting>Participe da</span><br>
-            <span data-splitting>rifa <span class="text-rose">gourmet.</span></span>
-          </h1>
-          <a href="#rifa" class="btn btn-rose btn-shimmer video-cta-btn" style="margin-top:2rem">
-            PARTICIPAR DA RIFA <span class="btn-arrow">→</span>
-          </a>
-        </div>
-
-        <div class="scroll-indicator-video" id="scroll-indicator-video" aria-hidden="true">
-          <span>ROLE PARA BAIXO</span>
-          <span class="si-arrow">↓</span>
-        </div>
-
+    <section id="hero-logo" aria-label="Daisuki Confeitaria">
+      <img src="logo.jpg" alt="Daisuki Confeitaria" class="hero-logo-img">
+      <div class="hero-logo-overlay">
+        <span class="video-label">AÇÃO MIP 2026</span>
+        <h1 class="video-headline">
+          Participe da<br>
+          rifa <span class="text-rose">gourmet.</span>
+        </h1>
+        <a href="#rifa" class="btn btn-rose btn-shimmer video-cta-btn" style="margin-top:1.5rem">
+          PARTICIPAR DA RIFA <span class="btn-arrow">→</span>
+        </a>
       </div>
-    </div>
+      <div class="scroll-indicator-video" aria-hidden="true">
+        <span>ROLE PARA BAIXO</span>
+        <span class="si-arrow">↓</span>
+      </div>
+    </section>
 
     <!-- ═══════════════════════════════════════════════════════
          SECTION 1 — RIFA ESPECIAL
@@ -248,7 +232,6 @@
 
   <script src="js/core.js"></script>
   <script src="js/sakura.js"></script>
-  <script src="js/video.js"></script>
   <script src="js/form.js"></script>
 
 </body>
