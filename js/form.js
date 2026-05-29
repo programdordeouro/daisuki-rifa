@@ -59,7 +59,7 @@
     if (btnText)   btnText.textContent  = l.btn;
 
     if (infoText) infoText.textContent = isCompra
-      ? 'Preencha seus dados. Após confirmar, entre em contato pelo Instagram para efetuar o pagamento.'
+      ? 'Preencha seus dados e confirme o pagamento direto no stand da Daisuki.'
       : 'Preencha seus dados e garanta sua participação! Você receberá 1 número exclusivo gratuitamente.';
 
     if (qtyGroup) qtyGroup.hidden = !isCompra;
