@@ -454,7 +454,8 @@ function initHistoriaPhoto() {
 
 // ─── Scroll indicator hide on first scroll ───────────────
 function initScrollIndicatorVideo() {
-  const indicator = document.getElementById('scroll-indicator-video');
+  const indicator = document.getElementById('scroll-indicator-video')
+    || document.querySelector('.scroll-indicator-video');
   if (!indicator) return;
 
   const handler = () => {

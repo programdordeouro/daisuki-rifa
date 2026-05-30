@@ -205,7 +205,7 @@
       if (btnText)  btnText.innerHTML = 'Enviando... <span class="spinner"></span>';
       if (btnArrow) btnArrow.style.display = 'none';
     } else {
-      if (btnText)  btnText.textContent = mode === 'fly' ? 'Garantir meu número' : 'Reservar bilhetes';
+      if (btnText)  btnText.textContent = mode === 'compra' ? 'Reservar bilhetes' : 'Garantir meu número';
       if (btnArrow) { btnArrow.style.display = ''; btnArrow.textContent = '→'; }
     }
   }

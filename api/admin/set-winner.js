@@ -40,7 +40,8 @@ module.exports = async function handler(req, res) {
   };
   const base = SUPA_URL + '/rest/v1';
 
-  const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  let body = {};
+  try { body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {}); } catch {}
 
   try {
     /* Se vier numero_sorteado já definido, salva direto; senão sorteia */

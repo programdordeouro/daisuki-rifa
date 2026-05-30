@@ -24,7 +24,7 @@
     const list    = document.getElementById('cd-tickets-list');
     const nameEl  = document.getElementById('cd-participant-name');
 
-    if (nameEl) { nameEl.textContent = nome; nameEl.hidden = false; }
+    if (nameEl && nome) { nameEl.textContent = nome; nameEl.hidden = false; }
 
     if (section && list) {
       list.innerHTML = numeros.map((n) => `<li class="cd-ticket-num">${n}</li>`).join('');
