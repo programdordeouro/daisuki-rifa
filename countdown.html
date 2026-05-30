@@ -71,12 +71,26 @@
       filter: drop-shadow(0 24px 64px rgba(44,24,16,0.22));
     }
 
+    #brigadeiro-bg-video {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
     #brigadeiro-canvas {
       display: block;
+      position: relative;
+      z-index: 1;
       cursor: grab;
       user-select: none; -webkit-user-select: none;
       touch-action: none;
       border-radius: 50%;
+      background: transparent;
     }
     #brigadeiro-canvas:active { cursor: grabbing; }
 
@@ -318,6 +332,9 @@
   <main class="cd-main">
 
     <div class="brigadeiro-wrap">
+      <video id="brigadeiro-bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+        <source src="hf_20260530_093909_4c413940-25d2-42dd-abf2-a5ffe953166c.mp4" type="video/mp4">
+      </video>
       <canvas
         id="brigadeiro-canvas"
         aria-label="Brigadeiro de chocolate interativo — clique e arraste para girar"
