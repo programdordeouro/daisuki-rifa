@@ -201,8 +201,8 @@
     renderer.setSize(s, s);
     el.style.width  = s + 'px';
     el.style.height = s + 'px';
-    const vid = document.getElementById('brigadeiro-bg-video');
-    if (vid) { vid.style.width = s + 'px'; vid.style.height = s + 'px'; }
+    const outer = el.closest('.brigadeiro-outer');
+    if (outer) { outer.style.width = s + 'px'; outer.style.height = s + 'px'; }
   }
   applySize();
   window.addEventListener('resize', applySize, { passive: true });
