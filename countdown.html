@@ -70,13 +70,21 @@
       position: relative;
     }
 
+    .brigadeiro-clip {
+      width: clamp(200px, 38vw, 340px);
+      height: clamp(200px, 38vw, 340px);
+      border-radius: 50%;
+      overflow: hidden;
+      filter: drop-shadow(0 20px 56px rgba(44,24,16,0.28));
+    }
+
     #brigadeiro-img {
       display: block;
-      border-radius: 50%;
+      width: 130%;
+      height: 130%;
+      margin: -15%;
       object-fit: cover;
-      width: clamp(260px, 52vw, 480px);
-      height: clamp(260px, 52vw, 480px);
-      filter: drop-shadow(0 24px 64px rgba(44,24,16,0.28));
+      object-position: center;
       user-select: none;
       -webkit-user-select: none;
       pointer-events: none;
@@ -320,7 +328,9 @@
   <main class="cd-main">
 
     <div class="brigadeiro-wrap">
-      <img id="brigadeiro-img" src="brigadeiro.png" alt="Brigadeiro Daisuki" draggable="false">
+      <div class="brigadeiro-clip">
+        <img id="brigadeiro-img" src="brigadeiro.png" alt="Brigadeiro Daisuki" draggable="false">
+      </div>
     </div>
 
     <div class="cd-countdown">
