@@ -65,20 +65,22 @@
       width: 100%;
     }
 
-    /* ── Brigadeiro canvas ───────────────────────────────── */
+    /* ── Brigadeiro imagem ──────────────────────────────── */
     .brigadeiro-wrap {
       position: relative;
-      filter: drop-shadow(0 24px 64px rgba(44,24,16,0.22));
     }
 
-    #brigadeiro-canvas {
+    #brigadeiro-img {
       display: block;
-      cursor: grab;
-      user-select: none; -webkit-user-select: none;
-      touch-action: none;
       border-radius: 50%;
+      object-fit: cover;
+      width: clamp(260px, 52vw, 480px);
+      height: clamp(260px, 52vw, 480px);
+      filter: drop-shadow(0 24px 64px rgba(44,24,16,0.28));
+      user-select: none;
+      -webkit-user-select: none;
+      pointer-events: none;
     }
-    #brigadeiro-canvas:active { cursor: grabbing; }
 
     .cd-drag-hint {
       position: absolute; bottom: -1.2rem; left: 50%;
@@ -318,11 +320,7 @@
   <main class="cd-main">
 
     <div class="brigadeiro-wrap">
-      <canvas
-        id="brigadeiro-canvas"
-        aria-label="Brigadeiro de chocolate interativo — clique e arraste para girar"
-      ></canvas>
-      <p class="cd-drag-hint" aria-hidden="true">· clique e gire o docinho ·</p>
+      <img id="brigadeiro-img" src="brigadeiro.png" alt="Brigadeiro Daisuki" draggable="false">
     </div>
 
     <div class="cd-countdown">
@@ -362,7 +360,6 @@
 
   </main>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="js/countdown.js"></script>
 </body>
 </html>
