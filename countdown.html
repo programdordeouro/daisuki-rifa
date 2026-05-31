@@ -66,31 +66,33 @@
     }
 
     /* ── Brigadeiro canvas ───────────────────────────────── */
-    .brigadeiro-wrap {
+    .brigadeiro-outer {
       position: relative;
-      filter: drop-shadow(0 24px 64px rgba(44,24,16,0.22));
+      display: inline-block;
     }
 
     #brigadeiro-bg-video {
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: 100%; height: 100%;
-      object-fit: cover;
       border-radius: 50%;
-      z-index: 0;
+      object-fit: cover;
       pointer-events: none;
+      z-index: 0;
+    }
+
+    .brigadeiro-wrap {
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 24px 64px rgba(44,24,16,0.22));
     }
 
     #brigadeiro-canvas {
       display: block;
-      position: relative;
-      z-index: 1;
       cursor: grab;
       user-select: none; -webkit-user-select: none;
       touch-action: none;
       border-radius: 50%;
-      background: transparent;
     }
     #brigadeiro-canvas:active { cursor: grabbing; }
 
@@ -331,15 +333,17 @@
 
   <main class="cd-main">
 
-    <div class="brigadeiro-wrap">
+    <div class="brigadeiro-outer">
       <video id="brigadeiro-bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
         <source src="hf_20260530_093909_4c413940-25d2-42dd-abf2-a5ffe953166c.mp4" type="video/mp4">
       </video>
-      <canvas
-        id="brigadeiro-canvas"
-        aria-label="Brigadeiro de chocolate interativo — clique e arraste para girar"
-      ></canvas>
-      <p class="cd-drag-hint" aria-hidden="true">· clique e gire o docinho ·</p>
+      <div class="brigadeiro-wrap">
+        <canvas
+          id="brigadeiro-canvas"
+          aria-label="Brigadeiro de chocolate interativo — clique e arraste para girar"
+        ></canvas>
+        <p class="cd-drag-hint" aria-hidden="true">· clique e gire o docinho ·</p>
+      </div>
     </div>
 
     <div class="cd-countdown">

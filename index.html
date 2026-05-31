@@ -41,7 +41,7 @@
          SECTION 0 — LOGO HERO
     ══════════════════════════════════════════════════════════ -->
     <section id="hero-logo" aria-label="Daisuki Confeitaria">
-      <img src="logo.jpg" alt="Daisuki Confeitaria" class="hero-logo-img" id="hero-bg-img">
+      <img src="logo.jpg" alt="Daisuki Confeitaria" class="hero-logo-img" id="hero-bg-img" style="opacity:0;transition:opacity 0.6s">
       <video id="hero-video" class="hero-logo-video" autoplay muted playsinline preload="auto"
              aria-hidden="true">
         <source src="hf_20260529_134627_c7b0c9b2-f1ab-4481-a4b4-e3582f64867b.mp4" type="video/mp4">
@@ -289,6 +289,8 @@
       });
 
       vid.addEventListener('error', function() {
+        var bg = document.getElementById('hero-bg-img');
+        if (bg) bg.style.opacity = '1';
         vid.style.display = 'none';
       });
     })();
