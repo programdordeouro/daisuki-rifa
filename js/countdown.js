@@ -155,12 +155,13 @@
   fillL.position.set(-2, 1, 3);
   scene.add(fillL);
 
-  const geo    = new THREE.SphereGeometry(1.85, 96, 96);
-  const mat    = new THREE.MeshPhongMaterial({
-    color:     new THREE.Color(0x2C1810),
-    specular:  new THREE.Color(0xA06830),
-    shininess: 120,
-    emissive:  new THREE.Color(0x080201),
+  const geo     = new THREE.SphereGeometry(1.85, 96, 96);
+  const loader  = new THREE.TextureLoader();
+  const texture = loader.load('brigadeiro.png');
+  const mat     = new THREE.MeshPhongMaterial({
+    map:       texture,
+    specular:  new THREE.Color(0xC8A84B),
+    shininess: 60,
   });
   const sphere = new THREE.Mesh(geo, mat);
   scene.add(sphere);
@@ -201,8 +202,6 @@
     renderer.setSize(s, s);
     el.style.width  = s + 'px';
     el.style.height = s + 'px';
-    const outer = el.closest('.brigadeiro-outer');
-    if (outer) { outer.style.width = s + 'px'; outer.style.height = s + 'px'; }
   }
   applySize();
   window.addEventListener('resize', applySize, { passive: true });
